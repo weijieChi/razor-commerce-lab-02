@@ -1,10 +1,41 @@
 ﻿@page
 @model IndexModel
+
 @{
-    ViewData["Title"] = "Home page";
+    // 這個值會交給 _Layout.cshtml：
+    //
+    // <title>@ViewData["Title"] - RazorCommerceLab</title>
+    //
+    // 最後 Browser title 會變成：
+    //
+    // 首頁 - RazorCommerceLab
+    ViewData["Title"] = "首頁";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+
+@*
+    @page
+    表示這個 .cshtml 是一個可以直接被 HTTP request 存取的 Razor Page。
+
+    因為檔案位置是：
+
+    Pages/Index.cshtml
+
+    所以它對應網站根路由：
+
+    GET /
+*@
+
+
+<section class="hero">
+
+    <h1 class="hero__title">
+        RazorCommerceLab
+    </h1>
+
+    <p class="hero__description">
+        使用 ASP.NET Core Razor Pages、Minimal API、
+        EF Core 與 SQLite 建立的電商學習專案。
+    </p>
+
+</section>

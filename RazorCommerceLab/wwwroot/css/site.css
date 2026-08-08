@@ -1,31 +1,265 @@
+/* ==========================================
+   Global variables
+   ========================================== */
+
+:root {
+    /*
+        先把網站常用顏色集中定義。
+
+        未來如果想改網站主色，
+        不需要到每個 CSS selector 一個一個修改。
+    */
+    --color-background: #f7f7f8;
+    --color-surface: #ffffff;
+    --color-text: #1f2937;
+    --color-muted: #6b7280;
+    --color-border: #e5e7eb;
+    --color-primary: #2563eb;
+    --color-primary-hover: #1d4ed8;
+
+    /*
+        共用圓角。
+    */
+    --radius-md: 8px;
+    --radius-lg: 12px;
+}
+
+
+/* ==========================================
+   Basic reset
+   ========================================== */
+
+/*
+    box-sizing: border-box
+
+    讓 width 計算包含：
+    content + padding + border
+
+    版面會比 CSS 預設的 content-box 好控制。
+*/
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    /*
+        瀏覽器預設 body 通常有 margin: 8px，
+        我們自己控制版面，所以先歸零。
+    */
+    margin: 0;
+
+    min-height: 100vh;
+
+    /*
+        body 使用 column flex layout：
+
+        Header
+        Main
+        Footer
+
+        site-main 設 flex: 1 後，
+        即使內容很少，Footer 仍會待在頁面下方。
+    */
+    display: flex;
+    flex-direction: column;
+
+    background: var(--color-background);
+    color: var(--color-text);
+
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    line-height: 1.6;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+
+/* 圖片不要超過父容器寬度。 */
+img {
+    display: block;
+    max-width: 100%;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+
+/*
+    form control 使用與網站相同的 font。
+    否則不同瀏覽器可能會使用自己的預設字型。
+*/
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+
+a {
+    color: var(--color-primary);
+}
+
+a:hover {
+    color: var(--color-primary-hover);
+}
+
+
+/* ==========================================
+   Container
+   ========================================== */
+
+/*
+    內容最多 1120px。
+
+    手機版則會保留左右各約 16px 的空間。
+
+    這也是 mobile-first：
+    不需要先假設桌面螢幕尺寸。
+*/
+.container {
+    width: min(1120px, calc(100% - 32px));
+    margin-inline: auto;
+}
+
+
+/* ==========================================
+   Header
+   ========================================== */
+
+.site-header {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.site-header__inner {
+    /*
+        手機版先垂直排列。
+    */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    padding-block: 16px;
+}
+
+.site-brand {
+    color: var(--color-text);
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.site-nav {
+    /*
+        <ul> 預設有 padding 與 list marker，
+        導覽列不需要，所以移除。
+    */
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    gap: 16px;
+
+    list-style: none;
+}
+
+.site-nav a {
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.site-nav a:hover {
+    color: var(--color-primary);
+}
+
+
+/* ==========================================
+   Main
+   ========================================== */
+
+.site-main {
+    /*
+        把剩餘垂直空間全部交給 main，
+        Footer 就可以自然待在最下面。
+    */
+    flex: 1;
+
+    padding-block: 40px;
+}
+
+
+/* ==========================================
+   Home hero
+   ========================================== */
+
+.hero {
+    padding: 48px 24px;
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+
+    text-align: center;
+}
+
+.hero__title {
+    margin-top: 0;
+    margin-bottom: 12px;
+
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    line-height: 1.1;
+}
+
+.hero__description {
+    max-width: 640px;
+
+    margin: 0 auto;
+
+    color: var(--color-muted);
+}
+
+
+/* ==========================================
+   Footer
+   ========================================== */
+
+.site-footer {
+    padding-block: 24px;
+
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+
+    color: var(--color-muted);
+}
+
+.site-footer p {
+    margin: 0;
+}
+
+
+/* ==========================================
+   Responsive layout
+   ========================================== */
+
+/*
+    mobile-first：
+
+    上面的 CSS 是手機版預設值。
+
+    螢幕寬度 >= 640px 後，
+    再增強成桌面版 Header。
+*/
+@media (min-width: 640px) {
+    .site-header__inner {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
 }

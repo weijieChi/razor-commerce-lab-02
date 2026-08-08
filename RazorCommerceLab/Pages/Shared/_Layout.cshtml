@@ -1,52 +1,148 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+
+@*
+    _Layout.cshtml 是整個前台網站共用的 HTML 外框。
+
+    Razor Page 本身只負責中間的主要內容，
+    最後會透過 @RenderBody() 插入這個 Layout。
+
+    可以把它理解成：
+
+    _Layout.cshtml
+    ├── <head>
+    ├── Header / Navigation
+    ├── @RenderBody()    ← 每個 Razor Page 放進這裡
+    └── Footer
+*@
+
+<html lang="zh-Hant">
+
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - RazorCommerceLab</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/RazorCommerceLab.styles.css" asp-append-version="true" />
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">RazorCommerceLab</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
+    @*
+        viewport 讓手機瀏覽器以裝置實際寬度呈現頁面，
+        是 Responsive Web Design 的基本設定。
+    *@
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    @*
+        每個 Page 可以設定：
+
+        ViewData["Title"] = "首頁";
+
+        最終就會變成：
+
+        首頁 - RazorCommerceLab
+    *@
+    <title>@ViewData["Title"] - RazorCommerceLab</title>
+
+    @*
+        ~/ 代表網站根路徑。
+
+        實體檔案：
+        wwwroot/css/site.css
+
+        Browser URL：
+        /css/site.css
+
+        asp-append-version="true"
+        會附加檔案版本資訊，避免瀏覽器一直使用舊的 CSS cache。
+    *@
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+</head>
+
+<body>
+    @* ==============================
+       Header
+       ============================== *@
+    <header class="site-header">
+        <div class="container site-header__inner">
+
+            @*
+                asp-page 是 Razor Tag Helper。
+
+                asp-page="/Index"
+                最後會產生指向首頁的 href。
+            *@
+            <a class="site-brand"
+               asp-page="/Index">
+                RazorCommerceLab
+            </a>
+
+            <nav aria-label="主要導覽">
+                <ul class="site-nav">
+                    <li>
+                        <a asp-page="/Index">
+                            首頁
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+
+    @* ==============================
+       Main Content
+       ============================== *@
+    <main class="site-main">
         <div class="container">
-            &copy; 2026 - RazorCommerceLab - <a asp-area="" asp-page="/Privacy">Privacy</a>
+
+            @*
+                @RenderBody() 是 Layout 最重要的地方。
+
+                例如使用者開：
+
+                Pages/Index.cshtml
+
+                Index.cshtml 產生的主要 HTML
+                就會被插入這個位置。
+            *@
+            @RenderBody()
+
+        </div>
+    </main>
+
+
+    @* ==============================
+       Footer
+       ============================== *@
+    <footer class="site-footer">
+        <div class="container">
+            <p>
+                &copy; 2026 RazorCommerceLab
+            </p>
         </div>
     </footer>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
 
+    @*
+        全站共用 JavaScript。
+
+        現在 site.js 幾乎沒有功能，
+        Step 7 才會加入商品購物車 fetch。
+    *@
+    <script src="~/js/site.js"
+            asp-append-version="true"></script>
+
+
+    @*
+        某些頁面未來會需要自己的 JS。
+
+        例如商品詳細頁：
+
+        @section Scripts {
+            <script src="~/js/product-detail.js"></script>
+        }
+
+        required: false 表示：
+        頁面沒有 Scripts section 也沒關係。
+    *@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>

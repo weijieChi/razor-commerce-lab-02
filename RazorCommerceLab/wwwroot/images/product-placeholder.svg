@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="640"
+     height="480"
+     viewBox="0 0 640 480"
+     role="img"
+     aria-labelledby="title description">
+
+    <title id="title">
+        商品預設圖片
+    </title>
+
+    <desc id="description">
+        商品沒有設定圖片時顯示的預設圖片
+    </desc>
+
+    <rect width="640"
+          height="480"
+          fill="#f3f4f6" />
+
+    <rect x="180"
+          y="110"
+          width="280"
+          height="220"
+          rx="16"
+          fill="#ffffff"
+          stroke="#d1d5db"
+          stroke-width="4" />
+
+    <circle cx="260"
+            cy="185"
+            r="30"
+            fill="#d1d5db" />
+
+    <path d="M205 300 L290 215 L340 265 L385 220 L435 300 Z"
+          fill="#d1d5db" />
+
+    <text x="320"
+          y="380"
+          text-anchor="middle"
+          font-family="sans-serif"
+          font-size="26"
+          fill="#6b7280">
+        No Product Image
+    </text>
+
+</svg>
