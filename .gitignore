@@ -1,0 +1,87 @@
+# ==============================
+# .NET build output
+# ==============================
+bin/
+obj/
+
+# ==============================
+# Visual Studio
+# ==============================
+.vs/
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# ==============================
+# Visual Studio Code
+# ==============================
+.vscode/*
+
+# 如果未來想提交共用的 VS Code 設定，
+# 這幾個檔案仍然允許加入 Git。
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+
+# ==============================
+# JetBrains Rider
+# ==============================
+.idea/
+*.sln.iml
+
+# ==============================
+# NuGet
+# ==============================
+*.nupkg
+*.snupkg
+packages/
+
+# ==============================
+# Test results
+# ==============================
+TestResults/
+*.trx
+coverage/
+coverage.xml
+coverage.cobertura.xml
+
+# ==============================
+# Logs
+# ==============================
+*.log
+logs/
+
+# ==============================
+# Local environment / secrets
+# ==============================
+.env
+.env.*
+!.env.example
+
+appsettings.Local.json
+appsettings.*.local.json
+secrets.json
+
+# ==============================
+# SQLite database
+# ==============================
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# ==============================
+# Docker local override
+# ==============================
+docker-compose.override.yml
+
+# ==============================
+# OS files
+# ==============================
+.DS_Store
+Thumbs.db
+desktop.ini
