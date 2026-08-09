@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using RazorCommerceLab.Infrastructure.Persistence;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ==========================================
@@ -8,8 +11,74 @@ var builder = WebApplication.CreateBuilder(args);
 // 之後 Pages/*.cshtml 與 PageModel 才能由 ASP.NET Core 處理。
 builder.Services.AddRazorPages();
 
-var app = builder.Build();
+// ==========================================
+// EF Core / SQLite
+// ==========================================
 
+/*
+    從 appsettings.json 讀取：
+
+    ConnectionStrings:
+        DefaultConnection
+
+    如果沒有設定，直接丟出明確錯誤，
+    比讓 EF Core 到後面才因為 null 出錯容易除錯。
+*/
+
+/*
+    GetConnectionString("DefaultConnection")
+
+    會去 Configuration 找：
+
+    ConnectionStrings:DefaultConnection
+
+    也就是 appsettings.json：
+
+    {
+      "ConnectionStrings": {
+        "DefaultConnection":
+          "Data Source=Data/razor-commerce.db"
+      }
+    }
+*/
+var connectionString =
+    builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException(
+        "Connection string 'DefaultConnection' was not found.");
+/*
+    將 AppDbContext 註冊進 ASP.NET Core DI container。
+
+    這個註冊非常重要。
+
+    AppDbContext 的 constructor 需要：
+
+    DbContextOptions<AppDbContext>
+
+    AddDbContext() 就會替 DI 準備這個 options，
+    並告訴 EF Core要使用 SQLite。
+
+    之後 PageModel 或 Minimal API 如果需要：
+
+    AppDbContext db
+
+    ASP.NET Core 就會自動建立並傳進去。
+
+    不需要自己：
+
+    new AppDbContext(...)
+*/
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+
+    /*
+        告訴 EF Core：
+
+        這個 AppDbContext 使用 SQLite provider。
+    */
+    options.UseSqlite(connectionString);
+});
+
+var app = builder.Build();
 
 // ==========================================
 // HTTP middleware pipeline
