@@ -1,15 +1,48 @@
 using Microsoft.EntityFrameworkCore;
 using RazorCommerceLab.Infrastructure.Persistence;
+using RazorCommerceLab.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ==========================================
-// Service registration
+// Razor Pages
 // ==========================================
 
 // 加入 Razor Pages 相關服務。
 // 之後 Pages/*.cshtml 與 PageModel 才能由 ASP.NET Core 處理。
 builder.Services.AddRazorPages();
+
+
+// ==========================================
+// Minimal API Validation
+// ==========================================
+
+/*
+    啟用 .NET 10 Minimal API 內建 Validation。
+
+    Endpoint parameter 綁定完成後，
+    ASP.NET Core 會檢查：
+
+    [Required]
+    [Range]
+    [StringLength]
+    ...
+
+    如果驗證失敗：
+
+    Request
+       ↓
+    Binding
+       ↓
+    Validation ❌
+       ↓
+    HTTP 400
+
+    Endpoint handler 不會被執行。
+*/
+// AddValidation() 是 .NET 10 Minimal API 啟用這套 validation pipeline 的入口。
+builder.Services.AddValidation();
+
 
 // ==========================================
 // EF Core / SQLite
@@ -134,6 +167,16 @@ app.MapStaticAssets();
 // GET /
 app.MapRazorPages()
    .WithStaticAssets();
+
+// ==========================================
+// Minimal API
+// ==========================================
+
+// 註冊商品 API：
+//
+// GET /api/products
+// GET /api/products/{id}
+app.MapProductEndpoints();
 
 
 // 啟動 ASP.NET Core Web Application。
