@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using RazorCommerceLab.Infrastructure.Persistence;
 using RazorCommerceLab.Api;
+using RazorCommerceLab.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -111,6 +112,41 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(connectionString);
 });
 
+// ==========================================
+// DummyJSON HttpClient
+// ==========================================
+
+/*
+    註冊 DummyJsonProductClient 為 Typed HttpClient。
+
+    ASP.NET Core 會：
+
+    1. 建立 HttpClient
+    2. 套用這裡的設定
+    3. 建立 DummyJsonProductClient
+    4. 把 HttpClient 注入 constructor
+*/
+builder.Services.AddHttpClient<DummyJsonProductClient>(client =>
+{
+    /*
+        之後 DummyJsonProductClient 裡可以只寫：
+
+        products?limit=100&skip=0
+
+        不需要每次重複：
+
+        https://dummyjson.com/
+    */
+    client.BaseAddress =
+        new Uri("https://dummyjson.com/");
+
+    /*
+        外部服務一直沒有回應時，
+        不希望 request 永遠卡住。
+    */
+    client.Timeout = TimeSpan.FromSeconds(15);
+});
+
 var app = builder.Build();
 
 // ==========================================
@@ -177,6 +213,13 @@ app.MapRazorPages()
 // GET /api/products
 // GET /api/products/{id}
 app.MapProductEndpoints();
+
+// ==========================================
+// Seed API
+// ==========================================
+
+// POST /api/seed/products
+app.MapSeedEndpoints();
 
 
 // 啟動 ASP.NET Core Web Application。

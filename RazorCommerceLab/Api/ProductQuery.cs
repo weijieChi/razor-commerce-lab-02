@@ -7,6 +7,11 @@ namespace RazorCommerceLab.Api;
 ///
 /// 範例：
 ///
+/// 所有 Query String 都允許省略：
+///
+/// /api/products
+/// /api/products?category=beauty
+/// /api/products?keyword=phone
 /// /api/products?page=2&pageSize=10
 ///
 /// /api/products?keyword=phone
@@ -19,6 +24,10 @@ namespace RazorCommerceLab.Api;
 /// 綁定到這個物件。
 ///
 /// DataAnnotations 則負責驗證綁定完成後的資料是否合法。
+///
+/// 因為「沒有傳」本身是合法情況。
+///
+/// 實際預設值會在 Endpoint 裡套用。
 /// </summary>
 public sealed class ProductQuery
 {
@@ -29,6 +38,7 @@ public sealed class ProductQuery
     /// 使用者可以完全不傳 keyword。
     ///
     /// 如果有傳，最多 100 個字元。
+    /// 沒有傳則代表不使用關鍵字搜尋。
     /// </summary>
     [StringLength(
         100,
@@ -41,6 +51,7 @@ public sealed class ProductQuery
     ///
     /// 使用者可以不指定分類，
     /// 但有指定時最多 100 個字元。
+    /// 沒有傳則代表不限制分類。
     /// </summary>
     [StringLength(
         100,
@@ -55,12 +66,16 @@ public sealed class ProductQuery
     /// page = 1
     ///
     /// [Range] 保證頁碼至少從 1 開始。
+    /// nullable 的原因：
+    /// Client 可以完全不傳 page。
+    ///
+    /// 有傳時則必須 >= 1。
     /// </summary>
     [Range(
         1,
         int.MaxValue,
         ErrorMessage = "page 必須大於或等於 1。")]
-    public int Page { get; init; } = 1;
+    public int? Page { get; init; }
 
 
     /// <summary>
@@ -71,10 +86,14 @@ public sealed class ProductQuery
     ///
     /// 最大限制 100，
     /// 避免 Client 一次要求過大量資料。
+    /// 每頁資料筆數。
+    ///
+    /// Client 可以不傳。
+    /// 有傳時限制 1 ~ 100。
     /// </summary>
     [Range(
         1,
         100,
         ErrorMessage = "pageSize 必須介於 1 到 100。")]
-    public int PageSize { get; init; } = 12;
+    public int? PageSize { get; init; }
 }
