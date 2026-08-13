@@ -1,19 +1,4 @@
-﻿@page
-@model IndexModel
-
-@{
-    // 這個值會交給 _Layout.cshtml：
-    //
-    // <title>@ViewData["Title"] - RazorCommerceLab</title>
-    //
-    // 最後 Browser title 會變成：
-    //
-    // 首頁 - RazorCommerceLab
-    ViewData["Title"] = "首頁";
-}
-
-
-@*
+﻿@*
     @page
     表示這個 .cshtml 是一個可以直接被 HTTP request 存取的 Razor Page。
 
@@ -26,6 +11,25 @@
     GET /
 *@
 
+@page
+@model IndexModel
+
+@{
+    // 這個值會交給 _Layout.cshtml：
+    //
+    // <title>@ViewData["Title"] - RazorCommerceLab</title>
+    //
+    // 最後 Browser title 會變成：
+    //
+    // 首頁 - RazorCommerceLab
+
+    ViewData["Title"] = "首頁";
+}
+
+
+@* ==========================================
+   Hero
+   ========================================== *@
 
 <section class="hero">
 
@@ -37,5 +41,80 @@
         使用 ASP.NET Core Razor Pages、Minimal API、
         EF Core 與 SQLite 建立的電商學習專案。
     </p>
+
+    <div class="hero__actions">
+
+        <a class="btn btn-primary" asp-page="/Products/Index">
+            瀏覽所有商品
+        </a>
+
+    </div>
+
+</section>
+
+
+@* ==========================================
+   Featured products
+   ========================================== *@
+
+<section class="section">
+
+    <header class="section-header">
+
+        <div>
+            <h2 class="section-title">
+                精選商品
+            </h2>
+
+            <p class="section-description">
+                查看本次精選商品。
+            </p>
+        </div>
+
+
+        <a asp-page="/Products/Index">
+            查看全部商品
+        </a>
+
+    </header>
+
+
+    @*
+        如果資料庫還沒有 Seed，
+        不要整個頁面空白。
+
+        顯示一個明確 empty state。
+    *@
+    @if (Model.FeaturedProducts.Count == 0)
+    {
+        <div class="empty-state">
+
+            <p>
+                目前沒有精選商品。
+            </p>
+
+            <p>
+                請先執行商品 Seed API。
+            </p>
+
+        </div>
+    }
+    else
+    {
+        /*
+            _ProductCard 是 Partial View。
+
+            首頁、商品列表、推薦商品
+            都可以重複使用同一份 HTML。
+        */
+        <div class="product-grid">
+
+            @foreach (var product in Model.FeaturedProducts)
+            {
+                <partial name="_ProductCard" model="product" />
+            }
+
+        </div>
+    }
 
 </section>

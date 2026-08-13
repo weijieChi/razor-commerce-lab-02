@@ -1,0 +1,92 @@
+@model RazorCommerceLab.Domain.Product
+
+@{
+    /*
+        商品圖片處理規則：
+
+        1. ThumbnailUrl 有資料
+           → 使用商品原本圖片
+
+        2. ThumbnailUrl 沒資料
+           → 使用 Picsum 固定 seed
+
+        因為 seed 使用 Product.Id：
+
+        product-1
+        product-2
+        product-3
+
+        所以不同商品會有不同 fallback 圖片，
+        同一商品重新整理時也不會一直亂換 URL。
+    */
+    var imageUrl =
+        string.IsNullOrWhiteSpace(Model.ThumbnailUrl)
+            ? $"https://picsum.photos/seed/product-{Model.Id}/640/480"
+            : Model.ThumbnailUrl;
+}
+
+<article class="product-card">
+
+    @*
+        整張商品圖片可以點進詳細頁。
+
+        asp-page：
+        指向 Razor Page。
+
+        asp-route-id：
+        產生 route parameter。
+
+        最後大致會變成：
+
+        /Products/Details/5
+    *@
+    <a class="product-card__image-link" asp-page="/Products/Details" asp-route-id="@Model.Id">
+
+        <img class="product-card__image" src="@imageUrl" alt="@Model.Title" loading="lazy"
+             onerror="this.onerror=null; this.src='/images/product-placeholder.svg';" />
+
+    </a>
+
+
+    <div class="product-card__body">
+
+        <span class="product-card__category">
+            @Model.Category
+        </span>
+
+
+        <h3 class="product-card__title">
+
+            <a asp-page="/Products/Details" asp-route-id="@Model.Id">
+                @Model.Title
+            </a>
+
+        </h3>
+
+
+        @*
+            商品描述完整內容可能很長。
+
+            HTML 不在這裡手動 substring，
+            稍後用 CSS line-clamp 控制顯示行數。
+        *@
+        <p class="product-card__description">
+            @Model.Description
+        </p>
+
+
+        <div class="product-card__footer">
+
+            <strong class="product-card__price">
+                $@Model.Price.ToString("N2")
+            </strong>
+
+            <span class="product-card__stock">
+                庫存 @Model.Stock
+            </span>
+
+        </div>
+
+    </div>
+
+</article>

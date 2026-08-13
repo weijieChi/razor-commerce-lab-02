@@ -1,14 +1,31 @@
 /* ==========================================
-   Global variables
+   RazorCommerceLab - site.css
+
+   RWD strategy:
+   1. Mobile First
+      - 不寫 media query 的樣式，就是手機版預設樣式。
+   2. Desktop
+      - 只有一個 breakpoint：
+        @media (min-width: 768px)
+
+   這個專案不使用：
+   - Bootstrap
+   - Tailwind CSS
+   - CSS Framework
+
+   目的是用原生 CSS 練習：
+   - Layout
+   - Flexbox
+   - Grid
+   - Responsive Web Design
+   ========================================== */
+
+/* ==========================================
+   1. Global variables
    ========================================== */
 
 :root {
-    /*
-        先把網站常用顏色集中定義。
-
-        未來如果想改網站主色，
-        不需要到每個 CSS selector 一個一個修改。
-    */
+    /* 全站共用顏色，集中管理方便之後修改主題。 */
     --color-background: #f7f7f8;
     --color-surface: #ffffff;
     --color-text: #1f2937;
@@ -17,25 +34,21 @@
     --color-primary: #2563eb;
     --color-primary-hover: #1d4ed8;
 
-    /*
-        共用圓角。
-    */
+    /* 共用圓角。 */
     --radius-md: 8px;
     --radius-lg: 12px;
+
+    /* 全站內容最大寬度。 */
+    --container-max-width: 1120px;
 }
 
-
 /* ==========================================
-   Basic reset
+   2. Basic reset
    ========================================== */
 
 /*
-    box-sizing: border-box
-
-    讓 width 計算包含：
-    content + padding + border
-
-    版面會比 CSS 預設的 content-box 好控制。
+    使用 border-box 後，width 會包含 padding 與 border，
+    做 RWD 與表單寬度時比較好控制。
 */
 *,
 *::before,
@@ -47,25 +60,22 @@ html {
     min-height: 100%;
 }
 
-body {
-    /*
-        瀏覽器預設 body 通常有 margin: 8px，
-        我們自己控制版面，所以先歸零。
-    */
-    margin: 0;
+/*
+    body 使用 Flex Column：
 
+    Header
+      ↓
+    Main
+      ↓
+    Footer
+
+    site-main 使用 flex: 1，
+    內容很少時 Footer 仍然會待在畫面底部。
+*/
+body {
+    margin: 0;
     min-height: 100vh;
 
-    /*
-        body 使用 column flex layout：
-
-        Header
-        Main
-        Footer
-
-        site-main 設 flex: 1 後，
-        即使內容很少，Footer 仍會待在頁面下方。
-    */
     display: flex;
     flex-direction: column;
 
@@ -82,18 +92,13 @@ body {
     line-height: 1.6;
 }
 
-
-/* 圖片不要超過父容器寬度。 */
+/* 圖片預設不超過父容器寬度。 */
 img {
     display: block;
     max-width: 100%;
 }
 
-
-/*
-    form control 使用與網站相同的 font。
-    否則不同瀏覽器可能會使用自己的預設字型。
-*/
+/* 表單控制項沿用網站字型。 */
 button,
 input,
 select,
@@ -101,7 +106,7 @@ textarea {
     font: inherit;
 }
 
-
+/* 共用連結樣式。 */
 a {
     color: var(--color-primary);
 }
@@ -110,27 +115,30 @@ a:hover {
     color: var(--color-primary-hover);
 }
 
-
 /* ==========================================
-   Container
+   3. Container
    ========================================== */
 
 /*
-    內容最多 1120px。
+    Mobile First：
+    手機左右各保留約 16px。
 
-    手機版則會保留左右各約 16px 的空間。
+    calc(100% - 32px)
+    = 100% 減去左右共 32px。
 
-    這也是 mobile-first：
-    不需要先假設桌面螢幕尺寸。
+    畫面夠寬後則限制最大為 1120px。
 */
 .container {
-    width: min(1120px, calc(100% - 32px));
+    width: min(
+        var(--container-max-width),
+        calc(100% - 32px)
+    );
+
     margin-inline: auto;
 }
 
-
 /* ==========================================
-   Header
+   4. Header
    ========================================== */
 
 .site-header {
@@ -138,10 +146,14 @@ a:hover {
     border-bottom: 1px solid var(--color-border);
 }
 
+/*
+    Mobile：
+
+    Brand
+      ↓
+    Navigation
+*/
 .site-header__inner {
-    /*
-        手機版先垂直排列。
-    */
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -151,20 +163,24 @@ a:hover {
 
 .site-brand {
     color: var(--color-text);
+
     font-size: 1.25rem;
     font-weight: 700;
+
     text-decoration: none;
 }
 
+.site-brand:hover {
+    color: var(--color-primary);
+}
+
+/* Navigation 不需要 ul 的預設 margin / padding / marker。 */
 .site-nav {
-    /*
-        <ul> 預設有 padding 與 list marker，
-        導覽列不需要，所以移除。
-    */
     margin: 0;
     padding: 0;
 
     display: flex;
+    flex-wrap: wrap;
     gap: 16px;
 
     list-style: none;
@@ -179,55 +195,19 @@ a:hover {
     color: var(--color-primary);
 }
 
-
 /* ==========================================
-   Main
+   5. Main
    ========================================== */
 
 .site-main {
-    /*
-        把剩餘垂直空間全部交給 main，
-        Footer 就可以自然待在最下面。
-    */
+    /* 取得 Header / Footer 以外剩餘的高度。 */
     flex: 1;
 
-    padding-block: 40px;
+    padding-block: 32px;
 }
-
 
 /* ==========================================
-   Home hero
-   ========================================== */
-
-.hero {
-    padding: 48px 24px;
-
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-
-    text-align: center;
-}
-
-.hero__title {
-    margin-top: 0;
-    margin-bottom: 12px;
-
-    font-size: clamp(2rem, 6vw, 3.5rem);
-    line-height: 1.1;
-}
-
-.hero__description {
-    max-width: 640px;
-
-    margin: 0 auto;
-
-    color: var(--color-muted);
-}
-
-
-/* ==========================================
-   Footer
+   6. Footer
    ========================================== */
 
 .site-footer {
@@ -243,23 +223,690 @@ a:hover {
     margin: 0;
 }
 
+/* ==========================================
+   7. Home Hero
+   ========================================== */
+
+.hero {
+    /* 手機先使用較小 padding，避免浪費垂直空間。 */
+    padding: 36px 20px;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+
+    text-align: center;
+}
+
+.hero__title {
+    margin-top: 0;
+    margin-bottom: 12px;
+
+    /*
+        clamp：
+        最小 2rem
+        中間依 viewport 寬度縮放
+        最大 3.5rem
+    */
+    font-size: clamp(2rem, 9vw, 3.5rem);
+    line-height: 1.1;
+}
+
+.hero__description {
+    max-width: 640px;
+
+    margin: 0 auto;
+
+    color: var(--color-muted);
+}
+
+.hero__actions {
+    margin-top: 24px;
+}
 
 /* ==========================================
-   Responsive layout
+   8. Generic page / section
+   ========================================== */
+
+.section {
+    margin-top: 40px;
+}
+
+/*
+    Mobile：
+
+    Section 標題
+       ↓
+    操作 / 連結
+*/
+.section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    margin-bottom: 24px;
+}
+
+.section-title {
+    margin: 0;
+    font-size: 1.75rem;
+}
+
+.section-description {
+    margin: 4px 0 0;
+    color: var(--color-muted);
+}
+
+.page-header {
+    margin-bottom: 28px;
+}
+
+.page-header h1 {
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+
+.page-header p {
+    margin: 0;
+    color: var(--color-muted);
+}
+
+/* 例如商品詳細頁的「← 返回分類」。 */
+.page-actions {
+    margin-bottom: 24px;
+}
+
+/* ==========================================
+   9. Buttons
+   ========================================== */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding: 8px 16px;
+
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+
+    cursor: pointer;
+
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: var(--color-primary);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background: var(--color-primary-hover);
+    color: #ffffff;
+}
+
+.btn-secondary {
+    background: var(--color-surface);
+    color: var(--color-text);
+
+    border-color: var(--color-border);
+}
+
+.btn-secondary:hover {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+/* ==========================================
+   10. Product Grid
    ========================================== */
 
 /*
-    mobile-first：
+    Mobile：一列 1 張商品卡。
 
-    上面的 CSS 是手機版預設值。
-
-    螢幕寬度 >= 640px 後，
-    再增強成桌面版 Header。
+    [Product]
+    [Product]
+    [Product]
 */
-@media (min-width: 640px) {
+.product-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+/* ==========================================
+   11. Product Card
+   ========================================== */
+
+.product-card {
+    /* 圖片超過圓角區域時直接裁掉。 */
+    overflow: hidden;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+.product-card__image-link {
+    display: block;
+    background: #f3f4f6;
+}
+
+.product-card__image {
+    width: 100%;
+
+    /* 所有商品圖片統一為 4:3，避免 Grid 高低不一。 */
+    aspect-ratio: 4 / 3;
+
+    /* 裁切圖片，不把圖片壓扁。 */
+    object-fit: cover;
+}
+
+.product-card__body {
+    padding: 16px;
+}
+
+.product-card__category {
+    display: inline-block;
+
+    margin-bottom: 8px;
+
+    color: var(--color-muted);
+    font-size: 0.875rem;
+}
+
+.product-card__title {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+}
+
+.product-card__title a {
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.product-card__title a:hover {
+    color: var(--color-primary);
+}
+
+.product-card__description {
+    /*
+        描述最多顯示三行。
+        Product.Description 原始資料沒有被修改，
+        只是 UI 顯示時由 CSS 截斷。
+    */
+    display: -webkit-box;
+    overflow: hidden;
+
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+
+    margin: 0 0 16px;
+
+    color: var(--color-muted);
+}
+
+.product-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+}
+
+.product-card__price {
+    font-size: 1.15rem;
+}
+
+.product-card__stock {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+}
+
+/* ==========================================
+   12. Product Search / Filter
+   ========================================== */
+
+/*
+    Mobile：
+
+    Keyword
+      ↓
+    Category
+      ↓
+    Search
+      ↓
+    Clear
+*/
+.product-filter {
+    display: grid;
+    grid-template-columns: 1fr;
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+    padding: 20px;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+.form-field label {
+    font-weight: 600;
+}
+
+.form-field input,
+.form-field select {
+    width: 100%;
+    min-height: 42px;
+
+    padding: 8px 12px;
+
+    background: #ffffff;
+    color: var(--color-text);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+/* 鍵盤操作時讓目前 focus 元素更清楚。 */
+.form-field input:focus-visible,
+.form-field select:focus-visible,
+.btn:focus-visible,
+a:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* Mobile：Search / Clear 上下排列。 */
+.product-filter__actions {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+/* ==========================================
+   13. Result Summary
+   ========================================== */
+
+/*
+    Mobile：
+
+    共找到 100 筆
+    第 1 / 9 頁
+*/
+.result-summary {
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+
+    margin-bottom: 20px;
+
+    color: var(--color-muted);
+}
+
+.result-summary p {
+    margin: 0;
+}
+
+/* ==========================================
+   14. Empty State
+   ========================================== */
+
+/* 找不到商品 / 尚未 Seed 商品時使用。 */
+.empty-state {
+    padding: 40px 20px;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+
+    text-align: center;
+
+    color: var(--color-muted);
+}
+
+.empty-state h2 {
+    margin-top: 0;
+    color: var(--color-text);
+}
+
+.empty-state p:last-child {
+    margin-bottom: 0;
+}
+
+/* ==========================================
+   15. Pagination
+   ========================================== */
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* 手機空間不足時允許自動換行。 */
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin-top: 32px;
+}
+
+.pagination__link,
+.pagination__current {
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 40px;
+
+    padding: 6px 12px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.pagination__link {
+    background: var(--color-surface);
+    text-decoration: none;
+}
+
+.pagination__link:hover {
+    border-color: var(--color-primary);
+}
+
+.pagination__current {
+    color: var(--color-muted);
+}
+
+/* ==========================================
+   16. Product Details
+   ========================================== */
+
+/*
+    Mobile：
+
+    ┌───────────────┐
+    │ Product Image │
+    └───────────────┘
+
+    Product Information
+*/
+.product-detail {
+    display: grid;
+    grid-template-columns: 1fr;
+
+    gap: 28px;
+}
+
+.product-detail__media {
+    overflow: hidden;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+.product-detail__image {
+    width: 100%;
+
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}
+
+.product-detail__category {
+    margin-top: 0;
+    margin-bottom: 8px;
+
+    color: var(--color-muted);
+}
+
+.product-detail__title {
+    margin-top: 0;
+    margin-bottom: 12px;
+
+    font-size: clamp(2rem, 9vw, 3rem);
+    line-height: 1.15;
+}
+
+.product-detail__brand {
+    color: var(--color-muted);
+}
+
+.product-detail__price {
+    margin-block: 20px;
+
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.product-detail__discount {
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+/* Rating / Stock 在手機仍維持兩欄。 */
+.product-detail__meta {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 12px;
+
+    margin-block: 24px;
+}
+
+.product-detail__meta div {
+    padding: 12px;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.product-detail__meta dt {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+}
+
+.product-detail__meta dd {
+    margin: 4px 0 0;
+    font-weight: 600;
+}
+
+.product-detail__description {
+    margin-top: 28px;
+}
+
+.product-detail__description h2 {
+    margin-bottom: 8px;
+}
+
+.product-detail__description p {
+    margin-top: 0;
+}
+
+/* ==========================================
+   17. Desktop Layout
+   ========================================== */
+
+/*
+    這個專案只有兩種排版：
+
+    Mobile
+    < 768px
+
+    Desktop
+    >= 768px
+
+    不另外建立 Tablet breakpoint。
+
+    這仍然是 Mobile First：
+
+    先寫手機預設樣式
+           ↓
+    >= 768px 時只覆寫需要變成 Desktop 的部分。
+*/
+@media (min-width: 768px) {
+
+    /* ------------------------------------------
+       Main
+       ------------------------------------------ */
+
+    .site-main {
+        padding-block: 40px;
+    }
+
+
+    /* ------------------------------------------
+       Header
+
+       Mobile：
+       Brand
+       Navigation
+
+       Desktop：
+       Brand               Navigation
+       ------------------------------------------ */
+
     .site-header__inner {
         flex-direction: row;
+
         align-items: center;
         justify-content: space-between;
+    }
+
+
+    /* ------------------------------------------
+       Hero
+       ------------------------------------------ */
+
+    .hero {
+        padding: 56px 32px;
+    }
+
+    .hero__title {
+        font-size: clamp(2.5rem, 5vw, 3.5rem);
+    }
+
+
+    /* ------------------------------------------
+       Generic section
+
+       Mobile：
+       標題
+       操作
+
+       Desktop：
+       標題                 操作
+       ------------------------------------------ */
+
+    .section {
+        margin-top: 48px;
+    }
+
+    .section-header {
+        flex-direction: row;
+
+        align-items: end;
+        justify-content: space-between;
+    }
+
+
+    /* ------------------------------------------
+       Product Grid
+
+       Mobile：1 column
+       Desktop：4 columns
+       ------------------------------------------ */
+
+    .product-grid {
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+    }
+
+
+    /* ------------------------------------------
+       Product Filter
+
+       Desktop：
+
+       Keyword | Category | Search / Clear
+       ------------------------------------------ */
+
+    .product-filter {
+        grid-template-columns:
+            minmax(0, 2fr)
+            minmax(180px, 1fr)
+            auto;
+
+        align-items: end;
+    }
+
+    .product-filter__actions {
+        flex-direction: row;
+    }
+
+
+    /* ------------------------------------------
+       Result Summary
+
+       Mobile：
+       共找到 100 筆
+       第 1 / 9 頁
+
+       Desktop：
+       共找到 100 筆            第 1 / 9 頁
+       ------------------------------------------ */
+
+    .result-summary {
+        flex-direction: row;
+
+        align-items: center;
+        justify-content: space-between;
+    }
+
+
+    /* ------------------------------------------
+       Product Details
+
+       Mobile：
+       Image
+       Information
+
+       Desktop：
+       Image | Information
+       ------------------------------------------ */
+
+    .product-detail {
+        grid-template-columns:
+            minmax(0, 1fr)
+            minmax(0, 1fr);
+
+        align-items: start;
+
+        gap: 40px;
+    }
+
+    .product-detail__title {
+        font-size: clamp(2.25rem, 4vw, 3rem);
     }
 }

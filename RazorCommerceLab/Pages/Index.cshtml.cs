@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using RazorCommerceLab.Domain;
+using RazorCommerceLab.Infrastructure.Persistence;
 
 namespace RazorCommerceLab.Pages;
 
@@ -26,6 +29,36 @@ namespace RazorCommerceLab.Pages;
 public class IndexModel : PageModel
 {
     /*
+      AppDbContext 由 ASP.NET Core DI 注入。
+
+      Program.cs 已經有：
+
+      builder.Services.AddDbContext<AppDbContext>(...)
+
+      所以這裡不用自己 new AppDbContext。
+  */
+    private readonly AppDbContext _db;
+
+
+    /*
+      首頁要顯示的精選商品。
+
+      Index.cshtml 裡可以使用：
+
+      Model.FeaturedProducts
+
+      一開始給空集合，
+      避免還沒查詢資料時出現 null。
+  */
+    public IReadOnlyList<Product> FeaturedProducts { get; private set; } = [];
+
+
+    public IndexModel(AppDbContext db)
+    {
+        _db = db;
+    }
+
+    /*
         OnGet() 是 Razor Pages 的 GET Handler。
 
         當 Browser 發送：
@@ -42,7 +75,44 @@ public class IndexModel : PageModel
         這裡會改成 OnGetAsync()，
         並從 EF Core 查詢商品資料。
     */
-    public void OnGet()
+
+
+    //
+
+    /*
+     GET /
+
+     Razor Pages 會執行 OnGetAsync()。
+
+     因為這次需要非同步查詢 SQLite，
+     所以使用：
+
+     Task OnGetAsync()
+ */
+    public async Task OnGetAsync(
+        CancellationToken cancellationToken)
     {
+        /*
+            Step 4 Seed 時，
+            我們有把部分商品：
+
+            IsFeatured = true
+
+            首頁只撈這些商品。
+        */
+        FeaturedProducts =
+            await _db.Products
+                .AsNoTracking()
+
+                .Where(product =>
+                    product.IsFeatured)
+
+                .OrderBy(product =>
+                    product.Id)
+
+                .Take(8)
+
+                .ToListAsync(
+                    cancellationToken);
     }
 }

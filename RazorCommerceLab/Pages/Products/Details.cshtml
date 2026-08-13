@@ -1,0 +1,166 @@
+@page "{id:int}"
+@model RazorCommerceLab.Pages.Products.DetailsModel
+
+@{
+    ViewData["Title"] = Model.Product.Title;
+
+    /*
+        詳細頁需要比較大的圖片。
+
+        同樣：
+
+        有 ThumbnailUrl
+        → 商品圖片
+
+        沒有
+        → Picsum fallback
+    */
+    var imageUrl =
+        string.IsNullOrWhiteSpace(Model.Product.ThumbnailUrl)
+            ? $"https://picsum.photos/seed/product-{Model.Product.Id}/960/720"
+            : Model.Product.ThumbnailUrl;
+}
+
+
+@* ==========================================
+   Breadcrumb / back
+   ========================================== *@
+
+<div class="page-actions">
+
+    <a asp-page="/Products/Index" asp-route-category="@Model.Product.Category">
+        ← 返回 @Model.Product.Category
+    </a>
+
+</div>
+
+
+@* ==========================================
+   Product details
+   ========================================== *@
+
+<article class="product-detail">
+
+    <div class="product-detail__media">
+
+        <img class="product-detail__image" src="@imageUrl" alt="@Model.Product.Title"
+             onerror="this.onerror=null; this.src='/images/product-placeholder.svg';" />
+
+    </div>
+
+
+    <div class="product-detail__content">
+
+        <p class="product-detail__category">
+            @Model.Product.Category
+        </p>
+
+
+        <h1 class="product-detail__title">
+            @Model.Product.Title
+        </h1>
+
+
+        @if (!string.IsNullOrWhiteSpace(Model.Product.Brand))
+        {
+            <p class="product-detail__brand">
+                品牌：@Model.Product.Brand
+            </p>
+        }
+
+
+        <p class="product-detail__price">
+            $@Model.Product.Price.ToString("N2")
+        </p>
+
+
+        @if (Model.Product.DiscountPercentage > 0)
+        {
+            <p class="product-detail__discount">
+                折扣：
+                @Model.Product.DiscountPercentage.ToString("0.##")%
+            </p>
+        }
+
+
+        <dl class="product-detail__meta">
+
+            <div>
+                <dt>評分</dt>
+                <dd>@Model.Product.Rating</dd>
+            </div>
+
+            <div>
+                <dt>庫存</dt>
+                <dd>@Model.Product.Stock</dd>
+            </div>
+
+        </dl>
+
+
+        <section class="product-detail__description">
+
+            <h2>
+                商品介紹
+            </h2>
+
+            <p>
+                @Model.Product.Description
+            </p>
+
+        </section>
+
+
+        @*
+            加入購物車按鈕目前先不做。
+
+            Step 7 才會在這裡加入：
+
+            button
+               ↓
+            product-detail.js
+               ↓
+            fetch POST /api/cart/items
+        *@
+
+    </div>
+
+</article>
+
+
+@* ==========================================
+   Related Products
+   ========================================== *@
+
+@if (Model.RelatedProducts.Count > 0)
+{
+    <section class="section">
+
+        <header class="section-header">
+
+            <div>
+
+                <h2 class="section-title">
+                    同分類商品
+                </h2>
+
+                <p class="section-description">
+                    其他 @Model.Product.Category 商品
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <div class="product-grid">
+
+            @foreach (var product in Model.RelatedProducts)
+            {
+                <partial name="_ProductCard" model="product" />
+            }
+
+        </div>
+
+    </section>
+}
