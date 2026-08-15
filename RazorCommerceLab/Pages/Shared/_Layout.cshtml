@@ -125,29 +125,37 @@
     </footer>
 
 
-    @*
-        全站共用 JavaScript。
-
-        現在 site.js 幾乎沒有功能，
-        Step 7 才會加入商品購物車 fetch。
-    *@
-    <script src="~/js/site.js"
-            asp-append-version="true"></script>
+  @*
+    全站 JavaScript。
+*@
+<script src="~/js/site.js"
+        asp-append-version="true"></script>
 
 
-    @*
-        某些頁面未來會需要自己的 JS。
+@*
+    商品卡可能出現在：
 
-        例如商品詳細頁：
+    首頁
+    商品列表
+    詳細頁推薦商品
 
-        @section Scripts {
-            <script src="~/js/product-detail.js"></script>
-        }
+    所以由 Layout 全域載入。
+*@
+<script src="~/js/product-card-cart.js"
+        asp-append-version="true"></script>
 
-        required: false 表示：
-        頁面沒有 Scripts section 也沒關係。
-    *@
-    @await RenderSectionAsync("Scripts", required: false)
+
+@*
+    特定 Page 自己需要的 script
+    可以透過：
+
+    @section Scripts
+
+    插入這個位置。
+*@
+@await RenderSectionAsync(
+    "Scripts",
+    required: false)
 </body>
 
 </html>

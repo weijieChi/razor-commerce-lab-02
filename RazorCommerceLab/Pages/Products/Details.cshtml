@@ -123,6 +123,54 @@
             fetch POST /api/cart/items
         *@
 
+        @* ==========================================
+   Add to Cart
+   ========================================== *@
+
+<div class="product-detail__cart">
+
+    <div class="form-field">
+
+        <label for="product-quantity">
+            數量
+        </label>
+
+        <input id="product-quantity"
+               class="product-detail__quantity"
+               type="number"
+               value="1"
+               min="1"
+               max="@Model.Product.Stock"
+               disabled="@(Model.Product.Stock <= 0)" />
+
+    </div>
+
+
+    <button id="product-detail-add-cart"
+            type="button"
+            class="btn btn-primary"
+            data-product-id="@Model.Product.Id"
+            data-product-stock="@Model.Product.Stock"
+            disabled="@(Model.Product.Stock <= 0)">
+
+        @if (Model.Product.Stock > 0)
+        {
+            <text>加入購物車</text>
+        }
+        else
+        {
+            <text>已售完</text>
+        }
+
+    </button>
+
+
+    <p id="product-detail-cart-feedback"
+       class="cart-feedback"
+       aria-live="polite"></p>
+
+</div>
+
     </div>
 
 </article>
@@ -163,4 +211,15 @@
         </div>
 
     </section>
+}
+
+@section Scripts {
+
+    @*
+        只有商品詳細頁需要 quantity + 加購邏輯，
+        所以不要在 Layout 全站載入。
+    *@
+    <script src="~/js/product-detail.js"
+            asp-append-version="true"></script>
+
 }

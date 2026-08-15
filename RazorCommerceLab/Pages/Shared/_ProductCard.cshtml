@@ -86,6 +86,42 @@
             </span>
 
         </div>
+    @*
+    商品卡的加入購物車功能。
+
+    商品列表 / 首頁的商品卡，
+    每次固定加入 1 個。
+
+    詳細頁才提供 quantity input。
+    *@
+        <div class="product-card__cart">
+
+            <button type="button" class="btn btn-primary product-card__cart-button js-product-card-add-cart"
+                    data-product-id="@Model.Id" disabled="@(Model.Stock <= 0)">
+
+                @if (Model.Stock > 0)
+                {
+                    <text>加入購物車</text>
+                }
+                else
+                {
+                    <text>已售完</text>
+                }
+
+            </button>
+
+
+        @*
+        JavaScript 會把操作結果寫進這裡。
+
+        aria-live="polite"
+
+        讓輔助工具可以知道這個區塊
+        有動態訊息變化。
+        *@
+            <p class="cart-feedback" aria-live="polite"></p>
+
+        </div>
 
     </div>
 
