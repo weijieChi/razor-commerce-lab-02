@@ -1,0 +1,86 @@
+@page
+@model RazorCommerceLab.Pages.Admin.IndexModel
+
+@{
+    ViewData["Title"] = "後台首頁";
+}
+
+
+@* ==========================================
+   Page Header
+   ========================================== *@
+
+<header class="admin-page-header">
+
+    <div>
+
+        <h1>
+            管理後台
+        </h1>
+
+        <p>
+            管理 RazorCommerceLab 的商品資料。
+        </p>
+
+    </div>
+
+</header>
+
+
+@* ==========================================
+   Dashboard Cards
+   ========================================== *@
+
+<section class="admin-dashboard-grid">
+
+    <article class="admin-dashboard-card">
+
+        <span class="admin-dashboard-card__label">
+            商品管理
+        </span>
+
+        <strong class="admin-dashboard-card__value">
+            CRUD
+        </strong>
+
+        <p>
+            後續將建立商品新增、修改與刪除功能。
+        </p>
+
+    </article>
+
+
+    <article class="admin-dashboard-card">
+
+        <span class="admin-dashboard-card__label">
+            資料庫
+        </span>
+
+        <strong class="admin-dashboard-card__value">
+            SQLite
+        </strong>
+
+        <p>
+            商品資料由 EF Core 存取 SQLite。
+        </p>
+
+    </article>
+
+
+    <article class="admin-dashboard-card">
+
+        <span class="admin-dashboard-card__label">
+            前端
+        </span>
+
+        <strong class="admin-dashboard-card__value">
+            Razor
+        </strong>
+
+        <p>
+            後台同樣使用 Razor Pages Server-Side Rendering。
+        </p>
+
+    </article>
+
+</section>

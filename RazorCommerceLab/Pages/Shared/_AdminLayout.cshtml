@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+
+    @*
+        每個 Admin Razor Page 可以設定：
+
+        ViewData["Title"]
+
+        Layout 再組成完整 <title>。
+    *@
+    <title>
+        @ViewData["Title"] - RazorCommerceLab 後台
+    </title>
+
+
+    @*
+        site.css：
+
+        保留網站共用的：
+        reset
+        variables
+        button
+        form 等基礎樣式。
+
+        admin.css：
+
+        專門處理後台 Layout。
+    *@
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/admin.css"
+          asp-append-version="true" />
+
+</head>
+
+
+<body class="admin-body">
+
+    <div class="admin-layout">
+
+
+        @* ======================================
+           Sidebar
+           ====================================== *@
+
+        <aside class="admin-sidebar">
+
+            <div class="admin-sidebar__brand">
+
+                <a asp-page="/Admin/Index">
+                    RazorCommerceLab
+                </a>
+
+                <span>
+                    管理後台
+                </span>
+
+            </div>
+
+
+            @*
+                Sidebar Navigation。
+
+                Step 9 目前只有 Dashboard 真正存在。
+
+                Product 管理頁會在後續 Step 建立，
+                所以先放文字提示，
+                避免現在點進去直接 404。
+            *@
+            <nav class="admin-nav"
+                 aria-label="後台導覽">
+
+                <ul>
+
+                    <li>
+
+                        <a asp-page="/Admin/Index">
+                            Dashboard
+                        </a>
+
+                    </li>
+
+
+                    <li>
+
+                        <span class="admin-nav__disabled">
+                            商品管理
+                            <small>
+                                後續建立
+                            </small>
+                        </span>
+
+                    </li>
+
+                </ul>
+
+            </nav>
+
+
+            <div class="admin-sidebar__footer">
+
+                @*
+                    回到前台。
+
+                    因為 Admin/_ViewStart
+                    只控制 Layout，
+                    不影響我們連到其他 Page。
+                *@
+                <a asp-page="/Index">
+                    ← 返回前台
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        @* ======================================
+           Content Area
+           ====================================== *@
+
+        <div class="admin-content">
+
+
+            @* ----------------------------------
+               Topbar
+               ---------------------------------- *@
+
+            <header class="admin-topbar">
+
+                <div>
+
+                    <p class="admin-topbar__eyebrow">
+                        Admin
+                    </p>
+
+                    <strong>
+                        @ViewData["Title"]
+                    </strong>
+
+                </div>
+
+
+                <a class="admin-topbar__frontend-link"
+                   asp-page="/Index">
+
+                    查看網站
+
+                </a>
+
+            </header>
+
+
+            @* ----------------------------------
+               Main
+               ---------------------------------- *@
+
+            <main class="admin-main">
+
+                <div class="admin-container">
+
+                    @*
+                        每一個 Admin Page 的內容
+                        會被放到這裡。
+                    *@
+                    @RenderBody()
+
+                </div>
+
+            </main>
+
+        </div>
+
+    </div>
+
+
+    @*
+        後台目前沒有特別的全域 JS，
+        仍保留 site.js。
+    *@
+    <script src="~/js/site.js"
+            asp-append-version="true"></script>
+
+
+    @*
+        未來 Admin Create / Edit Page
+        如果需要自己的 JavaScript，
+        可以：
+
+        @section Scripts {
+            ...
+        }
+    *@
+    @await RenderSectionAsync(
+        "Scripts",
+        required: false)
+
+</body>
+
+</html>
