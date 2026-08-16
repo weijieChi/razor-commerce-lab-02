@@ -741,6 +741,315 @@ a:focus-visible {
 }
 
 /* ==========================================
+   Cart interaction
+   ========================================== */
+
+/*
+    商品卡加入購物車區塊。
+*/
+.product-card__cart {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+
+    margin-top: 16px;
+}
+
+/*
+    Mobile：
+
+    商品卡按鈕使用整行寬度，
+    手機比較容易點擊。
+*/
+.product-card__cart-button {
+    width: 100%;
+}
+
+/*
+    API 成功 / 失敗訊息。
+
+    min-height 的用途：
+
+    沒有訊息時仍然保留一點空間，
+    避免文字出現時商品卡突然大幅跳動。
+*/
+.cart-feedback {
+    min-height: 1.5em;
+
+    margin: 0;
+
+    font-size: 0.875rem;
+}
+
+/*
+    成功。
+*/
+.cart-feedback--success {
+    color: #15803d;
+}
+
+/*
+    失敗。
+*/
+.cart-feedback--error {
+    color: #b91c1c;
+}
+
+/* ==========================================
+   Product Detail Cart
+   ========================================== */
+
+.product-detail__cart {
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+
+    margin-top: 28px;
+
+    padding-top: 24px;
+
+    border-top: 1px solid var(--color-border);
+}
+
+/*
+    數量欄位手機不用撐滿太寬，
+    但仍保留足夠的點擊區域。
+*/
+.product-detail__quantity {
+    max-width: 120px;
+}
+
+/* ==========================================
+   Cart Status Message
+   ========================================== */
+
+/*
+    TempData 訊息。
+
+    POST
+    ↓
+    Redirect
+    ↓
+    GET
+    ↓
+    顯示一次。
+*/
+.status-message {
+    margin-bottom: 24px;
+
+    padding: 12px 16px;
+
+    background: #eff6ff;
+
+    border: 1px solid #bfdbfe;
+    border-radius: var(--radius-md);
+
+    color: #1e40af;
+}
+
+/* ==========================================
+   Cart Layout
+   ========================================== */
+
+/*
+    Mobile First：
+
+    手機先變成：
+
+    Cart Items
+        ↓
+    Cart Summary
+*/
+.cart-layout {
+    display: grid;
+
+    grid-template-columns: 1fr;
+
+    gap: 24px;
+}
+
+/*
+    多個購物車商品之間保留空間。
+*/
+.cart-items {
+    display: flex;
+    flex-direction: column;
+
+    gap: 16px;
+}
+
+/* ==========================================
+   Cart Item
+   ========================================== */
+
+/*
+    Mobile：
+
+    Image
+      ↓
+    Product Information
+      ↓
+    Subtotal
+*/
+.cart-item {
+    display: grid;
+
+    grid-template-columns: 1fr;
+
+    gap: 16px;
+
+    padding: 16px;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+.cart-item__image-link {
+    display: block;
+
+    overflow: hidden;
+
+    background: #f3f4f6;
+
+    border-radius: var(--radius-md);
+}
+
+.cart-item__image {
+    width: 100%;
+
+    aspect-ratio: 4 / 3;
+
+    object-fit: cover;
+}
+
+.cart-item__title {
+    margin-top: 0;
+    margin-bottom: 8px;
+
+    font-size: 1.25rem;
+}
+
+.cart-item__title a {
+    color: var(--color-text);
+
+    text-decoration: none;
+}
+
+.cart-item__title a:hover {
+    color: var(--color-primary);
+}
+
+.cart-item__price,
+.cart-item__stock {
+    margin-block: 4px;
+
+    color: var(--color-muted);
+}
+
+/* ==========================================
+   Update Quantity Form
+   ========================================== */
+
+.cart-item__update-form {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+    margin-top: 16px;
+}
+
+.cart-item__quantity-field {
+    max-width: 120px;
+}
+
+/*
+    Remove button 與 Update form
+    稍微保持距離。
+*/
+.cart-item__remove-form {
+    margin-top: 10px;
+}
+
+/* ==========================================
+   Cart Item Subtotal
+   ========================================== */
+
+.cart-item__subtotal {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding-top: 16px;
+
+    border-top: 1px solid var(--color-border);
+}
+
+.cart-item__subtotal span {
+    color: var(--color-muted);
+}
+
+.cart-item__subtotal strong {
+    font-size: 1.25rem;
+}
+
+/* ==========================================
+   Cart Summary
+   ========================================== */
+
+.cart-summary {
+    padding: 20px;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+.cart-summary h2 {
+    margin-top: 0;
+}
+
+.cart-summary__list {
+    margin: 0 0 24px;
+}
+
+.cart-summary__list div {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    padding-block: 12px;
+
+    border-bottom: 1px solid var(--color-border);
+}
+
+.cart-summary__list dt {
+    color: var(--color-muted);
+}
+
+.cart-summary__list dd {
+    margin: 0;
+
+    font-weight: 700;
+}
+
+.cart-summary__clear-button {
+    width: 100%;
+}
+
+/* ==========================================
    17. Desktop Layout
    ========================================== */
 
@@ -903,7 +1212,7 @@ a:focus-visible {
     Quantity | 加入購物車
 
     訊息仍然可以顯示在下一行。
-*/
+    */
     .product-detail__cart {
         display: grid;
 
@@ -920,85 +1229,84 @@ a:focus-visible {
     */
         grid-column: 1 / -1;
     }
-}
 
-/* ==========================================
-   Cart interaction
-   ========================================== */
+    /* ------------------------------------------
+   Cart Layout
 
-/*
-    商品卡加入購物車區塊。
+   Desktop：
+
+   Cart Items          Summary
+   ────────────        ───────
+   Product
+   Product
+   Product
+   ------------------------------------------ */
+
+    .cart-layout {
+        grid-template-columns:
+            minmax(0, 1fr)
+            minmax(280px, 340px);
+
+        align-items: start;
+    }
+
+    /*
+    Desktop 的商品項目：
+
+    Image | Information | Subtotal
 */
-.product-card__cart {
-    display: flex;
-    flex-direction: column;
+    .cart-item {
+        grid-template-columns:
+            160px
+            minmax(0, 1fr)
+            auto;
 
-    gap: 8px;
+        align-items: start;
+    }
 
-    margin-top: 16px;
-}
-
-/*
-    Mobile：
-
-    商品卡按鈕使用整行寬度，
-    手機比較容易點擊。
+    /*
+    Desktop 圖片維持方正一些，
+    避免 Cart Row 過高。
 */
-.product-card__cart-button {
-    width: 100%;
-}
+    .cart-item__image {
+        aspect-ratio: 1 / 1;
+    }
 
-/*
-    API 成功 / 失敗訊息。
+    /*
+    Update form 改成：
 
-    min-height 的用途：
-
-    沒有訊息時仍然保留一點空間，
-    避免文字出現時商品卡突然大幅跳動。
+    Quantity | Update
 */
-.cart-feedback {
-    min-height: 1.5em;
+    .cart-item__update-form {
+        flex-direction: row;
 
-    margin: 0;
+        align-items: end;
+    }
 
-    font-size: 0.875rem;
-}
-
-/*
-    成功。
+    /*
+    Desktop 小計不需要上方分隔線。
 */
-.cart-feedback--success {
-    color: #15803d;
-}
+    .cart-item__subtotal {
+        flex-direction: column;
 
-/*
-    失敗。
+        align-items: flex-end;
+
+        justify-content: flex-start;
+
+        padding-top: 0;
+
+        border-top: 0;
+
+        white-space: nowrap;
+    }
+
+    /*
+    Summary 在頁面往下捲時，
+    可以維持在視窗較上方的位置。
 */
-.cart-feedback--error {
-    color: #b91c1c;
-}
+    .cart-summary {
+        position: sticky;
 
-/* ==========================================
-   Product Detail Cart
-   ========================================== */
-
-.product-detail__cart {
-    display: flex;
-    flex-direction: column;
-
-    gap: 12px;
-
-    margin-top: 28px;
-
-    padding-top: 24px;
-
-    border-top: 1px solid var(--color-border);
-}
-
-/*
-    數量欄位手機不用撐滿太寬，
-    但仍保留足夠的點擊區域。
-*/
-.product-detail__quantity {
-    max-width: 120px;
+        top: 24px;
+    }
 }

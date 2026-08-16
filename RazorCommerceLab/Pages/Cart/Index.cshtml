@@ -1,0 +1,340 @@
+@page
+@model RazorCommerceLab.Pages.Cart.IndexModel
+
+@{
+    ViewData["Title"] = "購物車";
+}
+
+
+@* ==========================================
+   Page Header
+   ========================================== *@
+
+<header class="page-header">
+
+    <h1>
+        購物車
+    </h1>
+
+    <p>
+        查看、更新或移除購物車中的商品。
+    </p>
+
+</header>
+
+
+@* ==========================================
+   TempData message
+   ========================================== *@
+
+@*
+    TempData：
+
+    POST handler
+        ↓
+    TempData["StatusMessage"] = "..."
+        ↓
+    RedirectToPage()
+        ↓
+    GET /Cart
+        ↓
+    這裡讀取訊息
+        ↓
+    顯示一次
+
+    TempData 被讀取後，
+    通常下一次 Request 就不再保留。
+*@
+@if (TempData["StatusMessage"]
+    is string statusMessage)
+{
+    <div class="status-message"
+         role="status">
+
+        @statusMessage
+
+    </div>
+}
+
+
+@* ==========================================
+   Empty Cart
+   ========================================== *@
+
+@if (Model.Items.Count == 0)
+{
+    <section class="empty-state">
+
+        <h2>
+            購物車目前是空的
+        </h2>
+
+        <p>
+            前往商品列表挑選商品。
+        </p>
+
+        <a class="btn btn-primary"
+           asp-page="/Products/Index">
+            瀏覽商品
+        </a>
+
+    </section>
+}
+
+else
+{
+    @* ======================================
+       Cart Items
+       ====================================== *@
+
+    <div class="cart-layout">
+
+        <section class="cart-items">
+
+            @foreach (var item in Model.Items)
+            {
+
+                /*
+                這裡已經在 @foreach 的 C# block 中，
+                所以直接宣告變數，不需要再加 @{}。
+                */
+
+                    /*
+                        商品圖片規則繼續跟前面一致：
+
+                        ThumbnailUrl 有值
+                        → 使用商品圖片
+
+                        沒有
+                        →使用 Picsum 固定 seed
+
+                        外部圖片載入失敗
+                        → onerror 改成本機 SVG
+                    */
+                    var imageUrl =
+                        string.IsNullOrWhiteSpace(
+                            item.ThumbnailUrl)
+                            ? $"https://picsum.photos/seed/product-{item.ProductId}/640/480"
+                            : item.ThumbnailUrl;
+
+
+
+                <article class="cart-item">
+
+                    @* --------------------------
+                       Product Image
+                       -------------------------- *@
+
+                    <a class="cart-item__image-link"
+                       asp-page="/Products/Details"
+                       asp-route-id="@item.ProductId">
+
+                        <img class="cart-item__image"
+                             src="@imageUrl"
+                             alt="@item.Title"
+                             loading="lazy"
+                             onerror="this.onerror=null; this.src='/images/product-placeholder.svg';" />
+
+                    </a>
+
+
+                    @* --------------------------
+                       Product Information
+                       -------------------------- *@
+
+                    <div class="cart-item__content">
+
+                        <h2 class="cart-item__title">
+
+                            <a asp-page="/Products/Details"
+                               asp-route-id="@item.ProductId">
+
+                                @item.Title
+
+                            </a>
+
+                        </h2>
+
+
+                        <p class="cart-item__price">
+                            單價：
+                            $@item.Price.ToString("N2")
+                        </p>
+
+
+                        <p class="cart-item__stock">
+                            庫存：
+                            @item.Stock
+                        </p>
+
+
+                        @* ----------------------
+                           Update quantity form
+                           ---------------------- *@
+
+                        @*
+                            asp-page-handler="Update"
+
+                            會產生：
+
+                            POST /Cart?handler=Update
+
+                            Razor Pages 會尋找：
+
+                            OnPostUpdateAsync(...)
+                        *@
+                        <form method="post"
+                              asp-page-handler="Update"
+                              class="cart-item__update-form">
+
+                            @*
+                                productId 不需要讓使用者看到，
+                                所以用 hidden input。
+
+                                POST 時會被 Model Binding
+                                綁定到：
+
+                                OnPostUpdateAsync(
+                                    int productId,
+                                    int quantity)
+                            *@
+                            <input type="hidden"
+                                   name="productId"
+                                   value="@item.ProductId" />
+
+
+                            <div class="form-field cart-item__quantity-field">
+
+                                <label for="quantity-@item.ProductId">
+                                    數量
+                                </label>
+
+                                <input id="quantity-@item.ProductId"
+                                       name="quantity"
+                                       type="number"
+                                       min="1"
+                                       max="@Math.Min(item.Stock, 99)"
+                                       value="@item.Quantity"
+                                       required />
+
+                            </div>
+
+
+                            <button type="submit"
+                                    class="btn btn-secondary">
+                                更新
+                            </button>
+
+                        </form>
+
+
+                        @* ----------------------
+                           Remove form
+                           ---------------------- *@
+
+                        <form method="post"
+                              asp-page-handler="Remove"
+                              class="cart-item__remove-form">
+
+                            <input type="hidden"
+                                   name="productId"
+                                   value="@item.ProductId" />
+
+
+                            <button type="submit"
+                                    class="btn btn-danger">
+                                移除
+                            </button>
+
+                        </form>
+
+                    </div>
+
+
+                    @* --------------------------
+                       Line total
+                       -------------------------- *@
+
+                    <div class="cart-item__subtotal">
+
+                        <span>
+                            小計
+                        </span>
+
+                        <strong>
+                            $@item.LineTotal.ToString("N2")
+                        </strong>
+
+                    </div>
+
+                </article>
+            }   @* ← foreach 應該在整張商品卡結束後才關閉 *@
+
+        </section>
+
+
+        @* ======================================
+           Order Summary
+           ====================================== *@
+
+        <aside class="cart-summary">
+
+            <h2>
+                購物車摘要
+            </h2>
+
+
+            <dl class="cart-summary__list">
+
+                <div>
+                    <dt>
+                        商品總數量
+                    </dt>
+
+                    <dd>
+                        @Model.TotalQuantity
+                    </dd>
+                </div>
+
+
+                <div>
+                    <dt>
+                        總金額
+                    </dt>
+
+                    <dd>
+                        $@Model.TotalAmount.ToString("N2")
+                    </dd>
+                </div>
+
+            </dl>
+
+
+            @*
+                本專案沒有訂單 / 結帳 / 金流。
+
+                所以購物車做到這裡就停止，
+                不假裝有 Checkout。
+            *@
+
+
+            @* ------------------------------
+               Clear Cart
+               ------------------------------ *@
+
+            <form method="post"
+                  asp-page-handler="Clear">
+
+                <button type="submit"
+                        class="btn btn-danger cart-summary__clear-button">
+
+                    清空購物車
+
+                </button>
+
+            </form>
+
+        </aside>
+
+    </div>
+}
