@@ -1050,6 +1050,98 @@ a:focus-visible {
 }
 
 /* ==========================================
+   Error Page
+   ========================================== */
+
+/*
+    404 / 500 共用錯誤頁樣式。
+
+    Mobile First：
+
+    錯誤資訊以單一卡片置中顯示。
+*/
+.error-page {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 55vh;
+
+    padding-block: 32px;
+}
+
+.error-page__content {
+    width: min(100%, 680px);
+
+    padding: 28px 20px;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+
+    text-align: center;
+}
+
+/*
+    404 / 500 大型數字。
+*/
+.error-page__code {
+    margin: 0;
+
+    color: var(--color-primary);
+
+    font-size: clamp(3.5rem, 18vw, 7rem);
+    font-weight: 800;
+
+    line-height: 1;
+}
+
+.error-page h1 {
+    margin-top: 16px;
+    margin-bottom: 8px;
+}
+
+.error-page__description {
+    max-width: 520px;
+
+    margin-inline: auto;
+
+    color: var(--color-muted);
+}
+
+/*
+    原始錯誤 Path / Request ID。
+*/
+.error-page__path,
+.error-page__request-id {
+    margin-top: 20px;
+
+    color: var(--color-muted);
+
+    font-size: 0.875rem;
+}
+
+.error-page code {
+    overflow-wrap: anywhere;
+}
+
+/*
+    Mobile：
+
+    Button 垂直排列。
+*/
+.error-page__actions {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    margin-top: 28px;
+}
+
+/* ==========================================
    17. Desktop Layout
    ========================================== */
 
@@ -1308,5 +1400,24 @@ a:focus-visible {
         position: sticky;
 
         top: 24px;
+    }
+
+    /* ------------------------------------------
+   Error Page - Desktop
+   ------------------------------------------ */
+
+    .error-page__content {
+        padding: 48px;
+    }
+
+    /*
+    Desktop 空間足夠：
+
+    [返回首頁] [瀏覽商品]
+*/
+    .error-page__actions {
+        flex-direction: row;
+
+        justify-content: center;
     }
 }

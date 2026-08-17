@@ -1,0 +1,79 @@
+@page "{code:int}"
+@model RazorCommerceLab.Pages.StatusCode.IndexModel
+
+@{
+    ViewData["Title"] = $"{Model.Code} - {Model.ErrorTitle}";
+}
+
+
+<section class="error-page">
+
+    <div class="error-page__content">
+
+
+        @* ======================================
+           Status Code
+           ====================================== *@
+
+        <p class="error-page__code">
+            @Model.Code
+        </p>
+
+
+        @* ======================================
+           Error Message
+           ====================================== *@
+
+        <h1>
+            @Model.ErrorTitle
+        </h1>
+
+
+        <p class="error-page__description">
+            @Model.ErrorDescription
+        </p>
+
+
+        @* ======================================
+           Original URL
+           ====================================== *@
+
+        @if (!string.IsNullOrWhiteSpace(
+                Model.OriginalPath))
+        {
+            <p class="error-page__path">
+
+                找不到：
+
+                <code>
+                    @Model.OriginalPath
+                </code>
+
+            </p>
+        }
+
+
+        @* ======================================
+           Actions
+           ====================================== *@
+
+        <div class="error-page__actions">
+
+            <a asp-page="/Index" class="btn btn-primary">
+
+                返回首頁
+
+            </a>
+
+
+            <a asp-page="/Products/Index" class="btn btn-secondary">
+
+                瀏覽商品
+
+            </a>
+
+        </div>
+
+    </div>
+
+</section>

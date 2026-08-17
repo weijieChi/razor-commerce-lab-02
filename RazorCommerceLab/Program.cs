@@ -149,6 +149,58 @@ builder.Services.AddHttpClient<DummyJsonProductClient>(client =>
 
 var app = builder.Build();
 
+
+// ==========================================
+// Error handling
+// ==========================================
+
+/*
+    處理沒有被程式 catch 的 Exception。
+
+    例如：
+
+    Razor Page
+        ↓
+    EF Core query
+        ↓
+    發生 Exception
+        ↓
+    沒有 catch
+        ↓
+    UseExceptionHandler
+        ↓
+    /Error
+        ↓
+    500 Error Page
+*/
+app.UseExceptionHandler(
+    "/Error");
+
+
+/*
+    處理 HTTP Status Code。
+
+    最主要練習：
+
+    404 Not Found
+
+    例如：
+
+    GET /abcdef
+        ↓
+    404
+        ↓
+    Server 內部重新執行：
+
+    /StatusCode/404
+
+    注意：
+    這不是 Browser Redirect。
+*/
+app.UseStatusCodePagesWithReExecute(
+    "/StatusCode/{0}");
+
+
 // ==========================================
 // HTTP middleware pipeline
 // ==========================================
@@ -170,6 +222,10 @@ var app = builder.Build();
 // 啟用 ASP.NET Core Routing。
 // Razor Pages 與後面的 Minimal API 都會依靠 Routing
 // 決定 request 應該交給哪個 endpoint。
+
+// ==========================================
+// Routing
+// ==========================================
 app.UseRouting();
 
 
@@ -241,6 +297,19 @@ app.MapCartEndpoints();
 // PUT    /api/admin/products/{id}
 // DELETE /api/admin/products/{id}
 app.MapAdminProductEndpoints();
+
+// ==========================================
+// TEMP：Step 13 測試 500
+// 測試完成後刪除。
+// ==========================================
+
+// app.MapGet(
+//     "/__test-error",
+//     () =>
+//     {
+//         throw new InvalidOperationException(
+//             "Step 13 test exception.");
+//     });
 
 
 // 啟動 ASP.NET Core Web Application。
