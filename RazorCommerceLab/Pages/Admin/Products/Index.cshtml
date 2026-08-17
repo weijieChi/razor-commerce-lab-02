@@ -1,0 +1,438 @@
+@page
+@model RazorCommerceLab.Pages.Admin.Products.IndexModel
+
+@{
+    ViewData["Title"] = "商品管理";
+}
+
+
+@* ==========================================
+   Page Header
+   ========================================== *@
+
+<header class="admin-page-header admin-page-header--actions">
+
+    <div>
+
+        <h1>
+            商品管理
+        </h1>
+
+        <p>
+            搜尋、篩選並管理商品資料。
+        </p>
+
+    </div>
+
+
+    @*
+        Step 12 才會真正建立 Create Page。
+
+        這一步先顯示按鈕外觀，
+        避免現在產生一個點下去就 404 的連結。
+
+        Step 12 完成後會改成：
+
+        <a asp-page="/Admin/Products/Create"
+           class="btn btn-primary">
+            新增商品
+        </a>
+    *@
+    <span class="btn btn-primary admin-disabled-action" title="Step 12 建立新增商品頁">
+        新增商品
+    </span>
+
+</header>
+
+
+@* ==========================================
+   Search / Filter
+   ========================================== *@
+
+<form method="get" class="admin-product-filter">
+
+    <div class="form-field">
+
+        <label asp-for="Keyword">
+            關鍵字
+        </label>
+
+        <input asp-for="Keyword" type="search" placeholder="搜尋名稱、描述或品牌" />
+
+    </div>
+
+
+    <div class="form-field">
+
+        <label asp-for="Category">
+            分類
+        </label>
+
+        <select asp-for="Category">
+
+            <option value="">
+                全部分類
+            </option>
+
+            @foreach (var category
+                in Model.Categories)
+            {
+                <option value="@category">
+                    @category
+                </option>
+            }
+
+        </select>
+
+    </div>
+
+
+    <div class="admin-product-filter__actions">
+
+        <button type="submit" class="btn btn-primary">
+            搜尋
+        </button>
+
+
+        @*
+            不帶 Query String 回到同一頁：
+
+            /Admin/Products
+
+            就等於清除搜尋條件。
+        *@
+        <a asp-page="/Admin/Products/Index" class="btn btn-secondary">
+            清除
+        </a>
+
+    </div>
+
+</form>
+
+
+@* ==========================================
+   Result Summary
+   ========================================== *@
+
+<div class="admin-result-summary">
+
+    <span>
+        共
+        <strong>@Model.TotalItems</strong>
+        筆商品
+    </span>
+
+
+    @if (Model.TotalPages > 0)
+    {
+        <span>
+            第 @Model.CurrentPage /
+            @Model.TotalPages 頁
+        </span>
+    }
+
+</div>
+
+
+@* ==========================================
+   Product Table
+   ========================================== *@
+
+<div class="admin-table-wrapper">
+
+    <table class="admin-table">
+
+        <thead>
+
+            <tr>
+
+                <th scope="col">
+                    ID
+                </th>
+
+                <th scope="col">
+                    商品
+                </th>
+
+                <th scope="col">
+                    分類
+                </th>
+
+                <th scope="col">
+                    價格
+                </th>
+
+                <th scope="col">
+                    庫存
+                </th>
+
+                <th scope="col">
+                    來源
+                </th>
+
+                <th scope="col">
+                    精選
+                </th>
+
+                <th scope="col">
+                    操作
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            @if (Model.Products.Count == 0)
+            {
+                <tr>
+
+                    <td colspan="8" class="admin-table__empty">
+
+                        找不到符合條件的商品。
+
+                    </td>
+
+                </tr>
+            }
+            else
+            {
+                @foreach (var product
+                    in Model.Products)
+                {
+                    /*
+                        注意：
+
+                        現在已經在 @foreach { }
+                        的 C# scope 裡。
+
+                        所以直接：
+
+                        var imageUrl = ...
+
+                        不要再包一層 @{}
+                    */
+                    var imageUrl =
+                        string.IsNullOrWhiteSpace(
+                            product.ThumbnailUrl)
+
+                            ? $"https://picsum.photos/seed/product-{product.Id}/160/160"
+
+                            : product.ThumbnailUrl;
+
+
+                    <tr>
+
+                        @* --------------------------
+                       ID
+                       -------------------------- *@
+
+                        <td>
+                            @product.Id
+                        </td>
+
+
+                        @* --------------------------
+                       Product
+                       -------------------------- *@
+
+                        <td>
+
+                            <div class="admin-product-cell">
+
+                                <img class="admin-product-cell__image" src="@imageUrl" alt="@product.Title" loading="lazy"
+                                     onerror="this.onerror=null; this.src='/images/product-placeholder.svg';" />
+
+
+                                <div>
+
+                                    <strong>
+                                        @product.Title
+                                    </strong>
+
+                                    <small>
+                                        建立：
+                                        @product.CreatedAt.ToLocalTime()
+                                        .ToString("yyyy-MM-dd")
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        @* --------------------------
+                       Category
+                       -------------------------- *@
+
+                        <td>
+                            @product.Category
+                        </td>
+
+
+                        @* --------------------------
+                       Price
+                       -------------------------- *@
+
+                        <td>
+                            $@product.Price.ToString("N2")
+                        </td>
+
+
+                        @* --------------------------
+                       Stock
+                       -------------------------- *@
+
+                        <td>
+
+                            @if (product.Stock > 0)
+                            {
+                                <span>
+                                    @product.Stock
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="admin-badge admin-badge--danger">
+                                    缺貨
+                                </span>
+                            }
+
+                        </td>
+
+
+                        @* --------------------------
+                       Source
+                       -------------------------- *@
+
+                        <td>
+
+                            @if (product.ExternalId.HasValue)
+                            {
+                                <span class="admin-badge">
+                                    DummyJSON
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="admin-badge">
+                                    Admin
+                                </span>
+                            }
+
+                        </td>
+
+
+                        @* --------------------------
+                       Featured
+                       -------------------------- *@
+
+                        <td>
+
+                            @if (product.IsFeatured)
+                            {
+                                <span class="admin-badge admin-badge--success">
+                                    是
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="admin-badge">
+                                    否
+                                </span>
+                            }
+
+                        </td>
+
+
+                        @* --------------------------
+                       Actions
+                       -------------------------- *@
+
+                        <td>
+
+                            <div class="admin-table-actions">
+
+                                @*
+                                Step 12 才建立真正：
+
+                                Edit.cshtml
+                                Delete.cshtml
+
+                                所以目前只顯示 disabled 狀態。
+
+                                Step 12 會改成：
+
+                                asp-page="/Admin/Products/Edit"
+                                asp-route-id="@product.Id"
+
+                                與：
+
+                                asp-page="/Admin/Products/Delete"
+                            *@
+
+                                <span class="admin-action-link admin-action-link--disabled">
+                                    編輯
+                                </span>
+
+                                <span class="admin-action-link admin-action-link--danger admin-action-link--disabled">
+                                    刪除
+                                </span>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+                }
+            }
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+@* ==========================================
+   Pagination
+   ========================================== *@
+
+@if (Model.TotalPages > 1)
+{
+    <nav class="admin-pagination" aria-label="後台商品分頁">
+
+
+        @if (Model.HasPreviousPage)
+        {
+            <a asp-page="/Admin/Products/Index" asp-route-keyword="@Model.Keyword" asp-route-category="@Model.Category"
+               asp-route-pageNumber="@(Model.CurrentPage - 1)">
+
+                上一頁
+
+            </a>
+        }
+
+
+        <span>
+            @Model.CurrentPage /
+            @Model.TotalPages
+        </span>
+
+
+        @if (Model.HasNextPage)
+        {
+            <a asp-page="/Admin/Products/Index" asp-route-keyword="@Model.Keyword" asp-route-category="@Model.Category"
+               asp-route-pageNumber="@(Model.CurrentPage + 1)">
+
+                下一頁
+
+            </a>
+        }
+
+    </nav>
+}

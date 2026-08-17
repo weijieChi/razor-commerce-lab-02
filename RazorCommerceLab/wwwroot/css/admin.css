@@ -16,7 +16,6 @@
    Content 在右
    ========================================== */
 
-
 /* ==========================================
    Admin Body
    ========================================== */
@@ -37,7 +36,6 @@
 
     background: var(--color-background);
 }
-
 
 /* ==========================================
    Admin Layout
@@ -60,7 +58,6 @@
     grid-template-columns: 1fr;
 }
 
-
 /* ==========================================
    Sidebar
    ========================================== */
@@ -78,7 +75,6 @@
     color: #ffffff;
 }
 
-
 /* ------------------------------------------
    Sidebar Brand
    ------------------------------------------ */
@@ -90,7 +86,6 @@
     gap: 2px;
 }
 
-
 .admin-sidebar__brand a {
     color: #ffffff;
 
@@ -100,18 +95,15 @@
     text-decoration: none;
 }
 
-
 .admin-sidebar__brand a:hover {
     color: #bfdbfe;
 }
-
 
 .admin-sidebar__brand span {
     color: #9ca3af;
 
     font-size: 0.875rem;
 }
-
 
 /* ==========================================
    Admin Navigation
@@ -135,7 +127,6 @@
     list-style: none;
 }
 
-
 .admin-nav a,
 .admin-nav__disabled {
     display: flex;
@@ -150,20 +141,17 @@
     border-radius: var(--radius-md);
 }
 
-
 .admin-nav a {
     color: #e5e7eb;
 
     text-decoration: none;
 }
 
-
 .admin-nav a:hover {
     background: #1f2937;
 
     color: #ffffff;
 }
-
 
 /*
     尚未建立的功能先顯示 disabled。
@@ -177,11 +165,9 @@
     cursor: default;
 }
 
-
 .admin-nav__disabled small {
     font-size: 0.75rem;
 }
-
 
 /* ==========================================
    Sidebar Footer
@@ -198,18 +184,15 @@
     margin-top: 8px;
 }
 
-
 .admin-sidebar__footer a {
     color: #9ca3af;
 
     text-decoration: none;
 }
 
-
 .admin-sidebar__footer a:hover {
     color: #ffffff;
 }
-
 
 /* ==========================================
    Content
@@ -221,7 +204,6 @@
     display: flex;
     flex-direction: column;
 }
-
 
 /* ==========================================
    Topbar
@@ -244,7 +226,6 @@
     border-bottom: 1px solid var(--color-border);
 }
 
-
 .admin-topbar__eyebrow {
     margin: 0;
 
@@ -255,13 +236,11 @@
     text-transform: uppercase;
 }
 
-
 .admin-topbar__frontend-link {
     white-space: nowrap;
 
     text-decoration: none;
 }
-
 
 /* ==========================================
    Admin Main
@@ -273,21 +252,16 @@
     padding-block: 24px;
 }
 
-
 /*
     後台自己的 Container。
 
     手機左右各保留約 16px。
 */
 .admin-container {
-    width: min(
-        1200px,
-        calc(100% - 32px)
-    );
+    width: min(1200px, calc(100% - 32px));
 
     margin-inline: auto;
 }
-
 
 /* ==========================================
    Page Header
@@ -297,7 +271,6 @@
     margin-bottom: 24px;
 }
 
-
 .admin-page-header h1 {
     margin-top: 0;
     margin-bottom: 6px;
@@ -305,13 +278,11 @@
     font-size: 1.8rem;
 }
 
-
 .admin-page-header p {
     margin: 0;
 
     color: var(--color-muted);
 }
-
 
 /* ==========================================
    Dashboard Grid
@@ -334,7 +305,6 @@
     gap: 16px;
 }
 
-
 .admin-dashboard-card {
     padding: 20px;
 
@@ -343,7 +313,6 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
 }
-
 
 .admin-dashboard-card__label {
     display: block;
@@ -355,7 +324,6 @@
     font-size: 0.875rem;
 }
 
-
 .admin-dashboard-card__value {
     display: block;
 
@@ -364,20 +332,317 @@
     font-size: 1.6rem;
 }
 
-
 .admin-dashboard-card p {
     margin: 0;
 
     color: var(--color-muted);
 }
 
+/* ==========================================
+   Admin Page Header Actions
+   ========================================== */
+
+/*
+    Mobile：
+
+    Page Title
+       ↓
+    Action Button
+*/
+.admin-page-header--actions {
+    display: flex;
+    flex-direction: column;
+
+    gap: 16px;
+}
+
+/*
+    Step 11 的 Create / Edit / Delete
+    還沒有真正 Page。
+
+    先呈現 disabled UI。
+*/
+.admin-disabled-action {
+    opacity: 0.55;
+
+    cursor: not-allowed;
+}
+
+/* ==========================================
+   Product Filter
+   ========================================== */
+
+/*
+    Mobile First：
+
+    Keyword
+       ↓
+    Category
+       ↓
+    Search / Clear
+*/
+.admin-product-filter {
+    display: grid;
+
+    grid-template-columns: 1fr;
+
+    gap: 16px;
+
+    margin-bottom: 20px;
+
+    padding: 20px;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+.admin-product-filter__actions {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+/* ==========================================
+   Result Summary
+   ========================================== */
+
+.admin-result-summary {
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+
+    margin-bottom: 16px;
+
+    color: var(--color-muted);
+}
+
+/* ==========================================
+   Table Wrapper
+   ========================================== */
+
+/*
+    Mobile：
+
+    Table 可能比手機畫面寬。
+
+    不硬把所有欄位塞成很窄，
+    而是讓 table wrapper 可以左右捲動。
+
+    這仍然保留真正的 table layout。
+*/
+.admin-table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+/* ==========================================
+   Admin Table
+   ========================================== */
+
+.admin-table {
+    width: 100%;
+
+    /*
+        Mobile 保留最低寬度，
+        太小時交給 wrapper 水平捲動。
+    */
+    min-width: 900px;
+
+    border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 12px 14px;
+
+    border-bottom: 1px solid var(--color-border);
+
+    text-align: left;
+    vertical-align: middle;
+}
+
+.admin-table th {
+    background: #f9fafb;
+
+    color: var(--color-muted);
+
+    font-size: 0.875rem;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.admin-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+/* ==========================================
+   Product Cell
+   ========================================== */
+
+.admin-product-cell {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    min-width: 250px;
+}
+
+.admin-product-cell__image {
+    width: 56px;
+    height: 56px;
+
+    flex: 0 0 auto;
+
+    object-fit: cover;
+
+    background: #f3f4f6;
+
+    border-radius: var(--radius-md);
+}
+
+.admin-product-cell strong {
+    display: block;
+}
+
+.admin-product-cell small {
+    display: block;
+
+    margin-top: 4px;
+
+    color: var(--color-muted);
+}
+
+/* ==========================================
+   Badges
+   ========================================== */
+
+.admin-badge {
+    display: inline-flex;
+
+    align-items: center;
+
+    padding: 3px 8px;
+
+    background: #f3f4f6;
+
+    border-radius: 999px;
+
+    color: var(--color-muted);
+
+    font-size: 0.8rem;
+}
+
+.admin-badge--success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.admin-badge--danger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* ==========================================
+   Table Actions
+   ========================================== */
+
+.admin-table-actions {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    white-space: nowrap;
+}
+
+.admin-action-link {
+    color: var(--color-primary);
+
+    text-decoration: none;
+}
+
+.admin-action-link--danger {
+    color: #dc2626;
+}
+
+.admin-action-link--disabled {
+    opacity: 0.45;
+
+    cursor: not-allowed;
+}
+
+/* ==========================================
+   Empty Table
+   ========================================== */
+
+.admin-table__empty {
+    padding: 40px !important;
+
+    color: var(--color-muted);
+
+    text-align: center !important;
+}
+
+/* ==========================================
+   Admin Pagination
+   ========================================== */
+
+.admin-pagination {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin-top: 24px;
+}
+
+.admin-pagination a,
+.admin-pagination span {
+    display: inline-flex;
+
+    align-items: center;
+
+    min-height: 40px;
+
+    padding: 6px 12px;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.admin-pagination a {
+    text-decoration: none;
+}
 
 /* ==========================================
    Desktop
    ========================================== */
 
 @media (min-width: 768px) {
-
     /* ------------------------------------------
        Admin Layout
 
@@ -398,7 +663,6 @@
             minmax(0, 1fr);
     }
 
-
     /* ------------------------------------------
        Sidebar
        ------------------------------------------ */
@@ -411,7 +675,6 @@
 
         padding: 24px 16px;
 
-
         /*
             如果後台主內容很長，
             Sidebar 固定在畫面左側。
@@ -423,7 +686,6 @@
         height: 100vh;
     }
 
-
     /*
         Desktop 時把「返回前台」
         推到 Sidebar 最底部。
@@ -431,7 +693,6 @@
     .admin-sidebar__footer {
         margin-top: auto;
     }
-
 
     /* ------------------------------------------
        Topbar
@@ -441,7 +702,6 @@
         padding-inline: 28px;
     }
 
-
     /* ------------------------------------------
        Main
        ------------------------------------------ */
@@ -449,7 +709,6 @@
     .admin-main {
         padding-block: 32px;
     }
-
 
     /* ------------------------------------------
        Dashboard
@@ -460,9 +719,62 @@
        ------------------------------------------ */
 
     .admin-dashboard-grid {
-        grid-template-columns:
-            repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
 
         gap: 20px;
+    }
+
+    /* ------------------------------------------
+   Product Management
+   ------------------------------------------ */
+
+    /*
+    Desktop：
+
+    Page Title        Add Button
+*/
+    .admin-page-header--actions {
+        flex-direction: row;
+
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /*
+    Desktop Search：
+
+    Keyword | Category | Buttons
+*/
+    .admin-product-filter {
+        grid-template-columns:
+            minmax(0, 2fr)
+            minmax(180px, 1fr)
+            auto;
+
+        align-items: end;
+    }
+
+    .admin-product-filter__actions {
+        flex-direction: row;
+    }
+
+    /*
+    Result：
+
+    100 筆              第 1 / 9 頁
+*/
+    .admin-result-summary {
+        flex-direction: row;
+
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /*
+    Desktop 空間夠大時，
+    table 就正常使用整個 Admin content。
+*/
+    .admin-table {
+        min-width: 860px;
     }
 }
