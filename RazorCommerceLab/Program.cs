@@ -232,6 +232,16 @@ app.MapSeedEndpoints();
 // DELETE /api/cart
 app.MapCartEndpoints();
 
+// ==========================================
+// Admin Product API
+// ==========================================
+
+// GET    /api/admin/products/{id}
+// POST   /api/admin/products
+// PUT    /api/admin/products/{id}
+// DELETE /api/admin/products/{id}
+app.MapAdminProductEndpoints();
+
 
 // 啟動 ASP.NET Core Web Application。
 app.Run();
