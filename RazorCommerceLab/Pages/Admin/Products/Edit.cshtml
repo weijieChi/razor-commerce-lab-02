@@ -1,0 +1,48 @@
+@page "{id:int}"
+@model RazorCommerceLab.Pages.Admin.Products.EditModel
+
+@{
+    ViewData["Title"] = "編輯商品";
+}
+
+
+<header class="admin-page-header">
+
+    <h1>
+        編輯商品
+    </h1>
+
+    <p>
+        商品 ID：@Model.ProductId
+    </p>
+
+</header>
+
+
+<section class="admin-form-card">
+
+    <form method="post">
+
+        <partial name="_ProductForm" for="Input" />
+
+
+        <div class="admin-form-actions">
+
+            <button type="submit" class="btn btn-primary">
+
+                儲存修改
+
+            </button>
+
+
+            <a asp-page="/Admin/Products/Index" class="btn btn-secondary">
+
+                取消
+
+            </a>
+
+        </div>
+
+    </form>
+
+</section>

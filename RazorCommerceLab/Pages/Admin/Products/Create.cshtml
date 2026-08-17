@@ -1,0 +1,52 @@
+@page
+@model RazorCommerceLab.Pages.Admin.Products.CreateModel
+
+@{
+    ViewData["Title"] = "新增商品";
+}
+
+
+<header class="admin-page-header">
+
+    <h1>
+        新增商品
+    </h1>
+
+    <p>
+        建立一筆新的商品資料。
+    </p>
+
+</header>
+
+
+<section class="admin-form-card">
+
+    <form method="post">
+
+        @*
+            把 PageModel.Input
+            傳給共用 Product Form Partial。
+        *@
+        <partial name="_ProductForm" for="Input" />
+
+
+        <div class="admin-form-actions">
+
+            <button type="submit" class="btn btn-primary">
+
+                新增商品
+
+            </button>
+
+
+            <a asp-page="/Admin/Products/Index" class="btn btn-secondary">
+
+                取消
+
+            </a>
+
+        </div>
+
+    </form>
+
+</section>

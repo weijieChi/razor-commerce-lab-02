@@ -1,0 +1,191 @@
+@model RazorCommerceLab.Pages.Admin.Products.ProductFormInput
+
+
+@* ==========================================
+   Validation Summary
+   ========================================== *@
+
+@*
+    顯示整份表單的 Validation Error。
+
+    ModelState.IsValid == false 時，
+    錯誤訊息會出現在這裡以及各欄位下方。
+*@
+<div asp-validation-summary="ModelOnly" class="form-validation-summary">
+</div>
+
+
+<div class="admin-form-grid">
+
+    @* ======================================
+       Title
+       ====================================== *@
+
+    <div class="form-field admin-form-field--full">
+
+        <label asp-for="Title"></label>
+
+        <input asp-for="Title" autocomplete="off" />
+
+        <span asp-validation-for="Title" class="field-validation-error">
+        </span>
+
+    </div>
+
+
+    @* ======================================
+       Description
+       ====================================== *@
+
+    <div class="form-field admin-form-field--full">
+
+        <label asp-for="Description"></label>
+
+        <textarea asp-for="Description" rows="6">
+        </textarea>
+
+        <span asp-validation-for="Description" class="field-validation-error">
+        </span>
+
+    </div>
+
+
+    @* ======================================
+       Price
+       ====================================== *@
+
+    <div class="form-field">
+
+        <label asp-for="Price"></label>
+
+        <input asp-for="Price" type="number" min="0" step="0.01" />
+
+        <span asp-validation-for="Price" class="field-validation-error">
+        </span>
+
+    </div>
+
+
+    @* ======================================
+       Discount
+       ====================================== *@
+
+    <div class="form-field">
+
+        <label asp-for="DiscountPercentage"></label>
+
+        <input asp-for="DiscountPercentage" type="number" min="0" max="100" step="0.01" />
+
+        <span asp-validation-for="DiscountPercentage" class="field-validation-error">
+        </span>
+
+    </div>
+
+
+    @* ======================================
+       Rating
+       ====================================== *@
+
+    <div class="form-field">
+
+        <label asp-for="Rating"></label>
+
+        <input asp-for="Rating" type="number" min="0" max="5" step="0.1" />
+
+        <span asp-validation-for="Rating" class="field-validation-error">
+        </span>
+
+    </div>
+
+
+    @* ======================================
+       Stock
+       ====================================== *@
+
+    <div class="form-field">
+
+        <label asp-for="Stock"></label>
+
+        <input asp-for="Stock" type="number" min="0" step="1" />
+
+        <span asp-validation-for="Stock" class="field-validation-error">
+        </span>
+
+    </div>
+
+
+    @* ======================================
+       Brand
+       ====================================== *@
+
+    <div class="form-field">
+
+        <label asp-for="Brand"></label>
+
+        <input asp-for="Brand" autocomplete="off" />
+
+        <span asp-validation-for="Brand" class="field-validation-error">
+        </span>
+
+    </div>
+
+
+    @* ======================================
+       Category
+       ====================================== *@
+
+    <div class="form-field">
+
+        <label asp-for="Category"></label>
+
+        <input asp-for="Category" autocomplete="off" />
+
+        <span asp-validation-for="Category" class="field-validation-error">
+        </span>
+
+    </div>
+
+
+    @* ======================================
+       Thumbnail
+       ====================================== *@
+
+    <div class="form-field admin-form-field--full">
+
+        <label asp-for="ThumbnailUrl"></label>
+
+        <input asp-for="ThumbnailUrl" type="url" placeholder="https://example.com/product.jpg" />
+
+        <span class="form-help">
+            可留空；沒有圖片時前台會使用預設圖片。
+        </span>
+
+        <span asp-validation-for="ThumbnailUrl" class="field-validation-error">
+        </span>
+
+    </div>
+
+
+    @* ======================================
+       Featured
+       ====================================== *@
+
+    <div class="form-field admin-form-field--full">
+
+        <label class="admin-checkbox">
+
+            <input asp-for="IsFeatured" />
+
+            <span>
+                @Html.DisplayNameFor(
+                    model => model.IsFeatured)
+            </span>
+
+        </label>
+
+        <span asp-validation-for="IsFeatured" class="field-validation-error">
+        </span>
+
+    </div>
+
+</div>

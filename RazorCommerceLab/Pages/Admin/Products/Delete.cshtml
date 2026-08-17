@@ -1,0 +1,105 @@
+@page "{id:int}"
+@model RazorCommerceLab.Pages.Admin.Products.DeleteModel
+
+@{
+    ViewData["Title"] = "刪除商品";
+}
+
+
+<header class="admin-page-header">
+
+    <h1>
+        刪除商品
+    </h1>
+
+    <p>
+        請確認是否真的要刪除這筆商品。
+    </p>
+
+</header>
+
+
+@if (Model.Product is not null)
+{
+    <section class="admin-delete-card">
+
+        <div class="admin-delete-warning">
+
+            <strong>
+                此操作無法直接復原。
+            </strong>
+
+            <p>
+                商品刪除後，
+                將不再出現在前台商品列表。
+            </p>
+
+        </div>
+
+
+        <dl class="admin-delete-details">
+
+            <div>
+                <dt>ID</dt>
+                <dd>@Model.Product.Id</dd>
+            </div>
+
+
+            <div>
+                <dt>商品名稱</dt>
+                <dd>@Model.Product.Title</dd>
+            </div>
+
+
+            <div>
+                <dt>分類</dt>
+                <dd>@Model.Product.Category</dd>
+            </div>
+
+
+            <div>
+                <dt>價格</dt>
+
+                <dd>
+                    $@Model.Product.Price.ToString("N2")
+                </dd>
+            </div>
+
+
+            <div>
+                <dt>庫存</dt>
+                <dd>@Model.Product.Stock</dd>
+            </div>
+
+        </dl>
+
+
+        @*
+            GET 只負責確認頁。
+
+            真正 DELETE 發生在 POST。
+
+            不要：
+
+            GET /Delete/5
+            就直接刪資料。
+        *@
+        <form method="post" class="admin-form-actions">
+
+            <button type="submit" class="btn btn-danger">
+
+                確認刪除
+
+            </button>
+
+
+            <a asp-page="/Admin/Products/Index" class="btn btn-secondary">
+
+                取消
+
+            </a>
+
+        </form>
+
+    </section>
+}

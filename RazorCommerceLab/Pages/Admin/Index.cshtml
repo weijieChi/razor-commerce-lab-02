@@ -84,3 +84,13 @@
     </article>
 
 </section>
+
+@if (TempData["StatusMessage"]
+    is string statusMessage)
+{
+    <div class="status-message" role="status">
+
+        @statusMessage
+
+    </div>
+}

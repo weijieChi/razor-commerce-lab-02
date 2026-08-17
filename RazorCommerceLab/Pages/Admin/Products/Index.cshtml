@@ -38,9 +38,11 @@
             新增商品
         </a>
     *@
-    <span class="btn btn-primary admin-disabled-action" title="Step 12 建立新增商品頁">
+    <a asp-page="/Admin/Products/Create" class="btn btn-primary">
+
         新增商品
-    </span>
+
+    </a>
 
 </header>
 
@@ -375,13 +377,19 @@
                                 asp-page="/Admin/Products/Delete"
                             *@
 
-                                <span class="admin-action-link admin-action-link--disabled">
-                                    編輯
-                                </span>
+                                <a asp-page="/Admin/Products/Edit" asp-route-id="@product.Id" class="admin-action-link">
 
-                                <span class="admin-action-link admin-action-link--danger admin-action-link--disabled">
+                                    編輯
+
+                                </a>
+
+
+                                <a asp-page="/Admin/Products/Delete" asp-route-id="@product.Id"
+                                   class="admin-action-link admin-action-link--danger">
+
                                     刪除
-                                </span>
+
+                                </a>
 
                             </div>
 
