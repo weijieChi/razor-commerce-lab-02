@@ -1,0 +1,88 @@
+services:
+  razor-commerce-lab:
+    # ========================================
+    # Build
+    # ========================================
+
+    build:
+      # "." 代表 docker-compose.yml
+      # 所在的 repo root。
+      context: .
+
+      dockerfile: Dockerfile
+
+
+    # Build 完成後的 local image 名稱。
+    image: razor-commerce-lab:local
+
+
+    # Container 名稱。
+    container_name: razor-commerce-lab
+
+
+    # ========================================
+    # Port
+    # ========================================
+
+    # Host : Container
+    #
+    # localhost:5033
+    #        ↓
+    # container:8080
+    ports:
+      - "5033:8080"
+
+
+    # ========================================
+    # Environment
+    # ========================================
+
+    environment:
+      # 使用 Production 環境。
+      ASPNETCORE_ENVIRONMENT: "Production"
+
+
+      # 明確讓 Kestrel 在 container
+      # 的所有 network interface
+      # 監聽 HTTP 8080。
+      ASPNETCORE_URLS: "http://+:8080"
+
+
+      # 覆蓋 appsettings.json：
+      #
+      # ConnectionStrings:
+      #   DefaultConnection
+      #
+      # SQLite DB 改放在 volume 掛載位置。
+      ConnectionStrings__DefaultConnection: "Data Source=/app/Data/razor-commerce.db"
+
+
+      # 讓 Docker 第一次啟動空 volume 時
+      # 自動套用 EF Core migrations。
+      Database__AutoMigrate: "true"
+
+
+    # ========================================
+    # SQLite persistence
+    # ========================================
+
+    volumes:
+      # named volume
+      #       ↓
+      # container filesystem
+      - razor-commerce-data:/app/Data
+
+
+    # ========================================
+    # Restart policy
+    # ========================================
+
+    restart: unless-stopped
+
+
+# ==========================================
+# Named volumes
+# ==========================================
+
+volumes:
+  razor-commerce-data:

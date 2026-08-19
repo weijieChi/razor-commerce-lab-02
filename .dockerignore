@@ -1,0 +1,61 @@
+# ==========================================
+# Git
+# ==========================================
+
+.git
+.gitignore
+
+
+# ==========================================
+# IDE
+# ==========================================
+
+.vs
+.vscode
+.idea
+
+
+# ==========================================
+# .NET build output
+# ==========================================
+
+**/bin
+**/obj
+
+
+# ==========================================
+# Local SQLite database
+# ==========================================
+
+# 本機開發用 SQLite DB
+# 不要 bake 進 Docker image。
+#
+# Docker 會自己使用：
+#
+# /app/Data/razor-commerce.db
+#
+# 並由 named volume 保存。
+RazorCommerceLab/Data/*.db
+RazorCommerceLab/Data/*.db-shm
+RazorCommerceLab/Data/*.db-wal
+RazorCommerceLab/Data/*.sqlite
+RazorCommerceLab/Data/*.sqlite3
+
+
+# ==========================================
+# Local / temporary files
+# ==========================================
+
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+
+# ==========================================
+# Documentation
+# ==========================================
+
+# Docker image 執行網站不需要 README / NOTES。
+README.md
+NOTES.md

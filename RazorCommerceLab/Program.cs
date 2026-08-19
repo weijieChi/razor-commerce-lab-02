@@ -151,6 +151,72 @@ var app = builder.Build();
 
 
 // ==========================================
+// Database migration
+// ==========================================
+
+/*
+    一般本機開發：
+
+    Database:AutoMigrate
+    預設不存在 / false
+
+    所以仍然自己執行：
+
+    dotnet ef database update
+
+
+    Docker Compose：
+
+    Database__AutoMigrate=true
+
+    ↓ ASP.NET Core Configuration
+
+    Database:AutoMigrate=true
+
+    ↓
+
+    啟動 container 時自動套用
+    已經存在的 EF Core migrations。
+
+
+    目的：
+
+    新的 Docker named volume 一開始沒有 SQLite DB，
+    Docker 第一次啟動時可以自動建立 schema。
+*/
+if (app.Configuration.GetValue<bool>(
+        "Database:AutoMigrate"))
+{
+    /*
+        AppDbContext 是 Scoped service。
+
+        Program.cs 目前不在 HTTP Request scope 中，
+        所以自己建立一個暫時的 DI scope。
+    */
+    using var scope =
+        app.Services.CreateScope();
+
+
+    var db =
+        scope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+
+    /*
+        套用 Migrations/ 裡尚未執行的 migration。
+
+        如果 DB 不存在：
+        → 建立 DB
+        → 建立 schema
+
+        如果 migration 已經套用：
+        → 不會重複建立相同 schema
+    */
+    await db.Database.MigrateAsync();
+}
+
+
+// ==========================================
 // Error handling
 // ==========================================
 
