@@ -3,6 +3,50 @@ using RazorCommerceLab.Infrastructure.Persistence;
 using RazorCommerceLab.Api;
 using RazorCommerceLab.Services;
 
+
+/*
+建立 ASP.NET Core 應用程式的「組裝器」，先準備設定、DI、Logging、執行環境等東西，但這時網站還沒有真正建立完成。
+
+builder 大概有四類
+- Services
+- Configuration
+- Logging
+- Environment
+
+builder.Services: 用來註冊 DI Service
+builder.Configuration: 負責讀設定
+builder.Environment 可以知道目前是哪個執行環境
+builder.Logging: 就是 Logging 設定
+
+---
+
+args 因為 Program.cs 使用 top-level statements，所以看不到 static void Main(string[] args)
+就是程式啟動時收到的 command line arguments
+
+---
+
+流程就是：
+
+CreateBuilder
+    ↓
+建立 WebApplicationBuilder
+
+    ↓
+
+AddRazorPages
+AddDbContext
+AddValidation
+AddHttpClient
+    ↓
+告訴 builder：
+「我的網站需要這些東西」
+
+    ↓
+
+Build()
+    ↓
+真正建立 WebApplication
+*/
 var builder = WebApplication.CreateBuilder(args);
 
 // ==========================================
@@ -147,6 +191,10 @@ builder.Services.AddHttpClient<DummyJsonProductClient>(client =>
     client.Timeout = TimeSpan.FromSeconds(15);
 });
 
+/*
+builder.Build();
+在前面的 DI 組件註冊完成後，正式把這些零件組成 Application
+*/
 var app = builder.Build();
 
 
@@ -377,7 +425,9 @@ app.MapAdminProductEndpoints();
 //             "Step 13 test exception.");
 //     });
 
-
+/*
+app.Run(); 是真正啟動 Web Server，開始等待 HTTP Request。
+*/
 // 啟動 ASP.NET Core Web Application。
 app.Run();
 
