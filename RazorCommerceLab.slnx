@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="RazorCommerceLab.Tests/RazorCommerceLab.Tests.csproj" />
+  <Project Path="RazorCommerceLab/RazorCommerceLab.csproj" />
+</Solution>
