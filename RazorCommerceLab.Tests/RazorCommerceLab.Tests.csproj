@@ -19,6 +19,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!--
+    測試專案需要使用正式專案裡的 class，
+    因此加入 ProjectReference。
+
+    例如之後測試：
+    ProductFormHelper
+    Product
+    AppDbContext
+
+    都是從 RazorCommerceLab 專案取得。
+    -->
     <ProjectReference Include="..\RazorCommerceLab\RazorCommerceLab.csproj" />
   </ItemGroup>
 
