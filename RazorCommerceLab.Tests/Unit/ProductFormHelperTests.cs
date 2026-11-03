@@ -28,18 +28,33 @@ public class ProductFormHelperTests
     [Fact]
     public void CreateProduct_ShouldTrimTitle()
     {
-        // Arrange：準備輸入資料。
-        var input = new ProductFormInput
-        {
-            Title = "  Mechanical Keyboard  ",
-            Description = "Keyboard",
-            Category = "keyboard"
-        };
+        // ========================================
+        // Arrange
+        // ========================================
 
-        // Act：執行被測方法。
+        // 建立這個 Test 專屬的 Input。
+        //
+        // 雖然 CreateValidInput 是共用方法，
+        // 但每次呼叫都會 new 一個新物件。
+        var input = CreateValidInput();
+
+        // 只修改這次要測試的欄位。
+        input.Title = "  Mechanical Keyboard  ";
+
+
+        // ========================================
+        // Act
+        // ========================================
+
+        // 執行正式專案的 CreateProduct。
         var product = ProductFormHelper.CreateProduct(input);
 
-        // Assert：確認前後空白已被移除。
+
+        // ========================================
+        // Assert
+        // ========================================
+
+        // 驗證建立後的 Title 已去除前後空白。
         Assert.Equal("Mechanical Keyboard", product.Title);
     }
 
@@ -97,29 +112,38 @@ public class ProductFormHelperTests
     [Fact]
     public void CreateProduct_ShouldUseEmptyStrings_WhenOptionalFieldsAreNull()
     {
+        // ========================================
         // Arrange
-        var input = new ProductFormInput
-        {
-            Title = "Keyboard",
-            Description = "Test product",
-            Category = "keyboard",
+        // ========================================
 
-            // 刻意提供 null，
-            // 驗證目前 Helper 的 null fallback 行為。
-            Brand = null,
-            ThumbnailUrl = null
-        };
+        // 再呼叫一次 CreateValidInput。
+        //
+        // 這個 input 與其他測試裡建立的 input
+        // 完全不是同一個物件。
+        var input = CreateValidInput();
 
+        // 故意將兩個 Optional Fields 改成 null。
+        //
+        // 此修改只會影響目前這個 Test 的 input。
+        input.Brand = null;
+        input.ThumbnailUrl = null;
+
+
+        // ========================================
         // Act
+        // ========================================
+
         var product = ProductFormHelper.CreateProduct(input);
 
+
+        // ========================================
         // Assert
-        // Assert.Equal(string.Empty, ...) 可以確認：
-        // 回傳的是空字串，不是 null。
+        // ========================================
+
+        // 確認 null 會被轉換成空字串。
         Assert.Equal(string.Empty, product.Brand);
         Assert.Equal(string.Empty, product.ThumbnailUrl);
     }
-
 
     // ==========================================
     // Test 4：新增商品的系統欄位
@@ -353,5 +377,27 @@ public class ProductFormHelperTests
         Assert.Equal(123, product.ExternalId);
         Assert.Equal("[\"existing.png\"]", product.ImageUrlsJson);
         Assert.Equal(originalCreatedAt, product.CreatedAt);
+    }
+
+    /// <summary>
+    /// 建立一份有效的 ProductFormInput 測試資料。
+    ///
+    /// 這個方法只負責建立新物件，
+    /// 不會使用 static field 保存共用物件。
+    ///
+    /// 每次呼叫都會產生獨立的 ProductFormInput。
+    /// </summary>
+    private static ProductFormInput CreateValidInput()
+    {
+        return new ProductFormInput
+        {
+            Title = "Keyboard",
+            Description = "Test product",
+            Category = "keyboard",
+            Price = 1500m,
+            Stock = 10,
+            Brand = "Test Brand",
+            ThumbnailUrl = "https://example.com/image.png"
+        };
     }
 }
