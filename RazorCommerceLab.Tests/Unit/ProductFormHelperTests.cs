@@ -24,9 +24,15 @@ public class ProductFormHelperTests
     /// <summary>
     /// 建立商品時，Title 前後的空白應被移除。
     /// 這是 Step 16-2 已完成的測試。
+    /// 方法：CreateProduct
+    /// 預期：ShouldTrimTitle
+    /// 條件：WhenInputHasSurroundingWhitespace
+    ///
+    /// 驗證當商品名稱前後包含空白時，
+    /// CreateProduct 應移除這些空白。
     /// </summary>
     [Fact]
-    public void CreateProduct_ShouldTrimTitle()
+    public void CreateProduct_ShouldTrimTitle_WhenInputHasSurroundingWhitespace()
     {
         // ========================================
         // Arrange
@@ -332,10 +338,15 @@ public class ProductFormHelperTests
     /// ImageUrlsJson
     /// CreatedAt
     ///
+    /// 方法：ApplyToProduct
+    /// 預期：ShouldPreserveSystemFields
+    /// 條件：WhenUpdatingExistingProduct
+    ///
     /// 這是這組測試中很重要的資料完整性規則。
+    /// 修改既有商品時，不應修改系統管理的欄位。
     /// </summary>
     [Fact]
-    public void ApplyToProduct_ShouldPreserveSystemFields()
+    public void ApplyToProduct_ShouldPreserveSystemFields_WhenUpdatingExistingProduct()
     {
         // Arrange
 
