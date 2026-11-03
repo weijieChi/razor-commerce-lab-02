@@ -1,88 +1,357 @@
 
+using RazorCommerceLab.Domain;
 using RazorCommerceLab.Pages.Admin.Products;
 using Xunit;
 
-// 測試專案使用自己的 namespace。
-// Unit 表示這個 class 放在單元測試分類。
 namespace RazorCommerceLab.Tests.Unit;
 
 /// <summary>
-/// 測試 ProductFormHelper 的行為。
+/// ProductFormHelper 的單元測試。
 ///
-/// ProductFormHelper 負責：
-/// 將後台表單資料轉換成 Product Entity。
+/// 被測試的功能：
+/// 1. 建立 Product
+/// 2. 將 Product 轉成表單資料
+/// 3. 修改既有 Product
 ///
-/// 這組測試不需要：
-/// - 啟動 ASP.NET Core
-/// - 連線 SQLite
-/// - 發送 HTTP Request
+/// 本測試完全不使用資料庫或 HTTP。
 /// </summary>
 public class ProductFormHelperTests
 {
-    /// <summary>
-    /// 驗證建立商品時，
-    /// 商品名稱前後多餘的空白會被移除。
-    /// </summary>
+    // ==========================================
+    // Test 1：Trim 商品名稱
+    // ==========================================
 
-    // [Fact] 告訴 xUnit：
-    // 下面這個 method 是一個測試案例。
-    //
-    // 執行 dotnet test 時，
-    // xUnit 會找到並執行這個方法。
+    /// <summary>
+    /// 建立商品時，Title 前後的空白應被移除。
+    /// 這是 Step 16-2 已完成的測試。
+    /// </summary>
     [Fact]
     public void CreateProduct_ShouldTrimTitle()
     {
-        // ========================================
-        // Arrange：準備測試資料
-        // ========================================
-
-        // 建立一份後台表單輸入資料。
-        //
-        // Title 刻意加入前後空白，
-        // 用來驗證 CreateProduct 的處理結果。
+        // Arrange：準備輸入資料。
         var input = new ProductFormInput
         {
             Title = "  Mechanical Keyboard  ",
-
-            // 其他欄位提供正常資料。
-            // 這次只關注 Title 的處理行為。
-            Description = "Mechanical keyboard",
-            Category = "keyboard",
-            Price = 1500m,
-            Stock = 10
+            Description = "Keyboard",
+            Category = "keyboard"
         };
 
+        // Act：執行被測方法。
+        var product = ProductFormHelper.CreateProduct(input);
 
-        // ========================================
-        // Act：執行被測試的功能
-        // ========================================
-
-        // 呼叫正式專案中的方法。
-        //
-        // 這裡不是自己重新實作 Trim 邏輯，
-        // 而是真正執行 ProductFormHelper。
-        //
-        // CreateProduct 會回傳 Product Entity。
-        var product =
-            ProductFormHelper.CreateProduct(input);
+        // Assert：確認前後空白已被移除。
+        Assert.Equal("Mechanical Keyboard", product.Title);
+    }
 
 
-        // ========================================
-        // Assert：驗證執行結果
-        // ========================================
+    // ==========================================
+    // Test 2：Trim 其他文字欄位
+    // ==========================================
 
-        // Assert.Equal(expected, actual)
-        //
-        // 第一個參數：預期結果。
-        // 第二個參數：實際結果。
-        //
-        // 如果 product.Title 有成功移除前後空白，
-        // 就會等於 "Mechanical Keyboard"。
-        //
-        // 如果不同，xUnit 就會判定測試失敗。
+    /// <summary>
+    /// 除了 Title，其他文字欄位也應去除前後空白。
+    ///
+    /// 將具有相同規則的欄位集中在一個測試中，
+    /// 不必每個欄位都建立獨立的 Test Method。
+    /// </summary>
+    [Fact]
+    public void CreateProduct_ShouldTrimOtherTextFields()
+    {
+        // Arrange
+        var input = new ProductFormInput
+        {
+            Title = "Keyboard",
+            Description = "  Gaming keyboard  ",
+            Category = "  keyboard  ",
+            Brand = "  Test Brand  ",
+            ThumbnailUrl = "  https://example.com/image.png  "
+        };
+
+        // Act
+        var product = ProductFormHelper.CreateProduct(input);
+
+        // Assert
+        // 這次集中驗證其他文字欄位的 Trim 行為。
+        Assert.Equal("Gaming keyboard", product.Description);
+        Assert.Equal("keyboard", product.Category);
+        Assert.Equal("Test Brand", product.Brand);
         Assert.Equal(
-            "Mechanical Keyboard",
-            product.Title
+            "https://example.com/image.png",
+            product.ThumbnailUrl
         );
+    }
+
+
+    // ==========================================
+    // Test 3：Nullable 欄位
+    // ==========================================
+
+    /// <summary>
+    /// Brand 和 ThumbnailUrl 都允許 null。
+    ///
+    /// 但是 Product Entity 使用空字串代表沒有資料。
+    ///
+    /// 所以當表單傳入 null 時，
+    /// Helper 應轉換成 string.Empty。
+    /// </summary>
+    [Fact]
+    public void CreateProduct_ShouldUseEmptyStrings_WhenOptionalFieldsAreNull()
+    {
+        // Arrange
+        var input = new ProductFormInput
+        {
+            Title = "Keyboard",
+            Description = "Test product",
+            Category = "keyboard",
+
+            // 刻意提供 null，
+            // 驗證目前 Helper 的 null fallback 行為。
+            Brand = null,
+            ThumbnailUrl = null
+        };
+
+        // Act
+        var product = ProductFormHelper.CreateProduct(input);
+
+        // Assert
+        // Assert.Equal(string.Empty, ...) 可以確認：
+        // 回傳的是空字串，不是 null。
+        Assert.Equal(string.Empty, product.Brand);
+        Assert.Equal(string.Empty, product.ThumbnailUrl);
+    }
+
+
+    // ==========================================
+    // Test 4：新增商品的系統欄位
+    // ==========================================
+
+    /// <summary>
+    /// 後台人工建立的商品：
+    ///
+    /// ExternalId = null
+    /// ImageUrlsJson = "[]"
+    /// CreatedAt = UTC 建立時間
+    ///
+    /// 這些欄位不是由表單使用者自行決定。
+    /// </summary>
+    [Fact]
+    public void CreateProduct_ShouldInitializeSystemFields()
+    {
+        // Arrange
+        var input = new ProductFormInput
+        {
+            Title = "Keyboard",
+            Description = "Test product",
+            Category = "keyboard"
+        };
+
+        // 記錄執行 CreateProduct 前的 UTC 時間。
+        //
+        // 不直接把時間寫死，
+        // 因為每次執行測試的時間都不同。
+        var before = DateTime.UtcNow;
+
+        // Act
+        var product = ProductFormHelper.CreateProduct(input);
+
+        // 記錄執行結束後的 UTC 時間。
+        var after = DateTime.UtcNow;
+
+        // Assert
+
+        // 後台商品不具有 DummyJSON ExternalId。
+        Assert.Null(product.ExternalId);
+
+        // 新商品的其他圖片預設是空 JSON Array。
+        Assert.Equal("[]", product.ImageUrlsJson);
+
+        // CreatedAt 應落在測試方法呼叫前後的區間內。
+        Assert.InRange(product.CreatedAt, before, after);
+
+        // 檢查 DateTime Kind 是否為 UTC。
+        Assert.Equal(DateTimeKind.Utc, product.CreatedAt.Kind);
+    }
+
+
+    // ==========================================
+    // Test 5：Product → ProductFormInput
+    // ==========================================
+
+    /// <summary>
+    /// FromProduct() 應將商品的可編輯欄位
+    /// 正確複製到 ProductFormInput。
+    ///
+    /// 用於 Razor Edit Page 預先填入表單。
+    /// </summary>
+    [Fact]
+    public void FromProduct_ShouldCopyEditableFields()
+    {
+        // Arrange
+        // 建立測試用 Product。
+        //
+        // 這只是 C# 物件，
+        // 並沒有寫入 SQLite。
+        var product = new Product
+        {
+            Id = 10,
+            Title = "Keyboard",
+            Description = "Mechanical keyboard",
+            Price = 1500m,
+            DiscountPercentage = 10m,
+            Rating = 4.5m,
+            Stock = 20,
+            Brand = "Test Brand",
+            Category = "keyboard",
+            ThumbnailUrl = "https://example.com/image.png",
+            IsFeatured = true
+        };
+
+        // Act
+        // 將 Product 轉成表單輸入模型。
+        var input = ProductFormHelper.FromProduct(product);
+
+        // Assert
+        // 驗證所有可編輯欄位都有正確帶入。
+        Assert.Equal(product.Title, input.Title);
+        Assert.Equal(product.Description, input.Description);
+        Assert.Equal(product.Price, input.Price);
+        Assert.Equal(
+            product.DiscountPercentage,
+            input.DiscountPercentage
+        );
+        Assert.Equal(product.Rating, input.Rating);
+        Assert.Equal(product.Stock, input.Stock);
+        Assert.Equal(product.Brand, input.Brand);
+        Assert.Equal(product.Category, input.Category);
+        Assert.Equal(product.ThumbnailUrl, input.ThumbnailUrl);
+        Assert.Equal(product.IsFeatured, input.IsFeatured);
+    }
+
+
+    // ==========================================
+    // Test 6：更新商品可編輯欄位
+    // ==========================================
+
+    /// <summary>
+    /// ApplyToProduct() 應將表單資料
+    /// 套用到原本的 Product。
+    ///
+    /// 注意：
+    /// 這個方法直接修改傳入的 Product 物件，
+    /// 不會回傳新的 Product。
+    /// </summary>
+    [Fact]
+    public void ApplyToProduct_ShouldUpdateEditableFields()
+    {
+        // Arrange
+        // 原本的商品資料。
+        var product = new Product
+        {
+            Title = "Old Keyboard",
+            Description = "Old description",
+            Price = 1000m,
+            DiscountPercentage = 0m,
+            Rating = 3m,
+            Stock = 5,
+            Brand = "Old Brand",
+            Category = "old",
+            ThumbnailUrl = string.Empty,
+            IsFeatured = false
+        };
+
+        // 管理員提交的新表單資料。
+        var input = new ProductFormInput
+        {
+            Title = "  New Keyboard  ",
+            Description = "  Updated description  ",
+            Price = 2000m,
+            DiscountPercentage = 20m,
+            Rating = 4.8m,
+            Stock = 30,
+            Brand = "  New Brand  ",
+            Category = "  keyboard  ",
+            ThumbnailUrl = "  https://example.com/new.png  ",
+            IsFeatured = true
+        };
+
+        // Act
+        // 直接修改既有的 product 物件。
+        ProductFormHelper.ApplyToProduct(product, input);
+
+        // Assert
+        // 檢查每個允許修改的欄位。
+        Assert.Equal("New Keyboard", product.Title);
+        Assert.Equal("Updated description", product.Description);
+        Assert.Equal(2000m, product.Price);
+        Assert.Equal(20m, product.DiscountPercentage);
+        Assert.Equal(4.8m, product.Rating);
+        Assert.Equal(30, product.Stock);
+        Assert.Equal("New Brand", product.Brand);
+        Assert.Equal("keyboard", product.Category);
+        Assert.Equal(
+            "https://example.com/new.png",
+            product.ThumbnailUrl
+        );
+        Assert.True(product.IsFeatured);
+    }
+
+
+    // ==========================================
+    // Test 7：保護系統欄位
+    // ==========================================
+
+    /// <summary>
+    /// 編輯商品時，不能破壞系統管理的欄位：
+    ///
+    /// Id
+    /// ExternalId
+    /// ImageUrlsJson
+    /// CreatedAt
+    ///
+    /// 這是這組測試中很重要的資料完整性規則。
+    /// </summary>
+    [Fact]
+    public void ApplyToProduct_ShouldPreserveSystemFields()
+    {
+        // Arrange
+
+        // 固定一個建立時間，方便測試前後是否相同。
+        var originalCreatedAt = new DateTime(
+            2025, 5, 20, 10, 30, 0, DateTimeKind.Utc
+        );
+
+        // 模擬資料庫已經存在的商品。
+        var product = new Product
+        {
+            Id = 50,
+            ExternalId = 123,
+            Title = "Old Product",
+            Description = "Old description",
+            Category = "old",
+            ImageUrlsJson = "[\"existing.png\"]",
+            CreatedAt = originalCreatedAt
+        };
+
+        // 表單只能提供可編輯欄位。
+        var input = new ProductFormInput
+        {
+            Title = "Updated Product",
+            Description = "Updated description",
+            Category = "keyboard"
+        };
+
+        // Act
+        ProductFormHelper.ApplyToProduct(product, input);
+
+        // Assert
+
+        // 先確認方法確實有套用表單資料。
+        Assert.Equal("Updated Product", product.Title);
+
+        // 然後確認系統欄位沒有被修改。
+        Assert.Equal(50, product.Id);
+        Assert.Equal(123, product.ExternalId);
+        Assert.Equal("[\"existing.png\"]", product.ImageUrlsJson);
+        Assert.Equal(originalCreatedAt, product.CreatedAt);
     }
 }
