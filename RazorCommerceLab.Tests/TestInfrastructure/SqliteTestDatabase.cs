@@ -41,7 +41,23 @@ public sealed class SqliteTestDatabase : IDisposable
         // 這不是檔案路徑，
         // 不會建立實體 SQLite .db 檔案。
         _connection = new SqliteConnection(
-            "Data Source=:memory:"
+             // "Data Source=:memory:"
+             //
+             // 建立 SQLite In-Memory Connection。
+             //
+             // Data Source=:memory:
+             // 表示資料庫存在記憶體，不會產生 .db 檔案。
+             //
+             // Foreign Keys=True
+             // 明確要求 SQLite 啟用 Foreign Key Constraints。
+             //
+             // 這樣測試不會因 SQLite 執行環境不同，
+             // 而意外跳過 Foreign Key 檢查。
+             // 主要是讓測試條件明確。
+             //
+             // SQLite 可以透過 PRAGMA foreign_keys 控制外鍵檢查
+             // 而 Microsoft.Data.Sqlite 也提供對應的 Connection String 設定。
+             "Data Source=:memory:;Foreign Keys=True"
         );
 
         // 主動開啟連線。
