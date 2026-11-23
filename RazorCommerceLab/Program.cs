@@ -446,3 +446,33 @@ app.Run();
 // 所以暫時沒有必要。
 //
 // 未來這個 RazorCommerceLab 本來也沒有規劃登入 / 權限功能。
+
+
+// ==========================================
+// Integration Testing Entry Point
+// ==========================================
+
+/*
+    Program.cs 使用 Top-level Statements。
+
+    C# 編譯器會自動產生 Program 類型，
+    但預設無法讓外部測試專案直接引用。
+
+    透過 public partial class Program，
+    可以讓 RazorCommerceLab.Tests 使用：
+
+    WebApplicationFactory<Program>
+
+    WebApplicationFactory 便能找到
+    正式 ASP.NET Core 專案的 Entry Point，
+    並建立測試專用的 Application Host。
+
+    partial 的意思是：
+    這個類型的定義可以分散在不同宣告中。
+
+    這裡不需要自己實作 Main()，
+    也不需要重新建立 WebApplicationBuilder。
+*/
+public partial class Program
+{
+}
