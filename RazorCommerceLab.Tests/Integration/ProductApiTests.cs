@@ -487,4 +487,89 @@ public class ProductApiTests
         // 避免單純修改文案就造成測試失敗。
         Assert.Contains("999999", message!);
     }
+
+
+    // ==========================================
+    // Test 7：Regression Test
+    // ==========================================
+
+    /// <summary>
+    /// Regression Test：
+    ///
+    /// 防止 Minimal API 的 [AsParameters]
+    /// Query Parameter Binding 問題再次發生。
+    ///
+    /// 當 Request 只提供 Category，
+    /// 沒有提供 Page 和 PageSize 時，
+    /// API 仍應正常使用預設分頁設定。
+    /// </summary>
+    [Fact]
+    public async Task GetProducts_ShouldUseDefaultPagination_WhenOnlyCategoryIsProvided()
+    {
+        // ========================================
+        // Arrange
+        // ========================================
+
+        // 建立獨立的 ASP.NET Core Test Host
+        // 與 SQLite In-Memory Database。
+        using var factory =
+            new CustomWebApplicationFactory();
+
+        using var client = factory.CreateClient();
+
+        // 沿用 Step 16-11 的 30 筆測試商品。
+        //
+        // 其中 Id 4、5、6 屬於 beauty 分類。
+        await SeedProductsAsync(factory);
+
+
+        // ========================================
+        // Act
+        // ========================================
+
+        // 刻意不提供 page 和 pageSize。
+        //
+        // 這是之前曾經發生 Bug 的 Request 情境。
+        //
+        // GetProductListAsync() 內部已經包含：
+        // 1. HTTP 200 OK Assertion
+        // 2. JSON Deserialization
+        // 3. Response Null Check
+        var result = await GetProductListAsync(
+            client,
+            "/api/products?category=beauty"
+        );
+
+
+        // ========================================
+        // Assert
+        // ========================================
+
+        // 確認省略分頁參數時，
+        // API 仍然正確使用預設值。
+        Assert.Equal(1, result.Page);
+        Assert.Equal(12, result.PageSize);
+
+        // 確認分類篩選結果正確。
+        Assert.Equal(3, result.TotalItems);
+        Assert.Equal(1, result.TotalPages);
+        Assert.Equal(3, result.Items.Count);
+
+        // 確認每筆商品都屬於 beauty 分類。
+        Assert.All(
+            result.Items,
+            product => Assert.Equal(
+                "beauty",
+                product.Category
+            )
+        );
+
+        // 確認回傳的是正確的商品，
+        // 而不只是剛好有三筆資料。
+        Assert.Equal(
+            new[] { 4, 5, 6 },
+            result.Items.Select(product => product.Id)
+        );
+    }
+
 }
