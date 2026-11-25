@@ -53,6 +53,7 @@ coverage.cobertura.xml
 # ==============================
 *.log
 logs/
+result.txt
 
 # ==============================
 # Local environment / secrets
