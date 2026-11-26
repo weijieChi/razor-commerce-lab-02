@@ -1,4 +1,5 @@
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Net.Http.Headers;
 using System.Net;
@@ -28,6 +29,54 @@ namespace RazorCommerceLab.Tests.Integration;
 /// </summary>
 public class CartApiTests
 {
+
+
+    // ==========================================
+    // Database Assertion Helpers
+    // ==========================================
+
+    /// <summary>
+    /// 直接從測試資料庫讀取所有 CartItems。
+    ///
+    /// 每次呼叫都建立新的 DI Scope 和 AppDbContext，
+    /// 避免受到前一次查詢的 Change Tracker 影響。
+    /// </summary>
+    private static async Task<List<CartItem>>
+        ReadCartItemsFromDatabaseAsync(
+            CustomWebApplicationFactory factory)
+    {
+        // 建立獨立的 DI Scope。
+        using var scope =
+            factory.Services.CreateScope();
+
+        // 從 DI Container 取得新的 AppDbContext。
+        var db = scope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        // 直接查詢 SQLite 資料庫。
+        //
+        // AsNoTracking()：
+        // 不將查詢結果加入 Change Tracker。
+        //
+        // OrderBy()：
+        // 讓查詢結果具有明確的排序。
+        //
+        // ToListAsync()：
+        // 實際執行 SQL 並取得完整查詢結果。
+        return await db.CartItems
+            .AsNoTracking()
+            .OrderBy(item => item.Id)
+            .ToListAsync();
+
+        // 方法結束後：
+        //
+        // DI Scope Dispose
+        //     ↓
+        // AppDbContext Dispose
+        //
+        // 但 Singleton SQLite Connection 仍然保持開啟，
+        // 因此測試資料庫不會消失。
+    }
 
     // ==========================================
     // Cookie Helpers
@@ -1071,5 +1120,498 @@ public class CartApiTests
 
         Assert.Equal(3, finalCartB.TotalQuantity);
         Assert.Equal(4500m, finalCartB.TotalAmount);
+    }
+
+
+    // ==========================================
+    // Test 14：Add and Merge Persistence
+    // ==========================================
+
+    /// <summary>
+    /// 驗證相同商品重複加入購物車時，
+    /// 資料庫只會保留一筆紀錄，並正確合併數量。
+    /// </summary>
+    [Fact]
+    public async Task CartPersistence_ShouldMergeQuantityWithoutCreatingDuplicateRecords()
+    {
+        // Arrange
+        using var factory =
+            new CustomWebApplicationFactory();
+
+        using var client = factory.CreateClient();
+
+        await SeedProductsAsync(factory);
+
+        // 確認測試開始前沒有購物車紀錄。
+        var emptyItems =
+            await ReadCartItemsFromDatabaseAsync(factory);
+
+        Assert.Empty(emptyItems);
+
+
+        // ========================================
+        // Act 1：第一次加入商品
+        // ========================================
+
+        using var response =
+            await client.PostAsJsonAsync(
+                "/api/cart/items",
+                new AddCartItemRequest
+                {
+                    ProductId = 1,
+                    Quantity = 2
+                }
+            );
+
+        // HTTP Assertion。
+        var initialCart =
+            await ReadCartResponseAsync(response);
+
+        Assert.Equal(2, initialCart.TotalQuantity);
+
+        // 從 Set-Cookie Header 取得真正的 CartKey。
+        //
+        // 沿用 Step 16-14 建立的 Cookie Helper。
+        var cookie = GetCartCookie(response);
+
+        var cartKey = cookie.Value.Value!;
+
+
+        // ========================================
+        // Assert 1：確認 INSERT 結果
+        // ========================================
+
+        var initialItems =
+            await ReadCartItemsFromDatabaseAsync(factory);
+
+        var initialItem = Assert.Single(initialItems);
+
+        // 確認資料庫中的 CartKey
+        // 與 Server 發放的 Cookie 一致。
+        Assert.Equal(cartKey, initialItem.CartKey);
+
+        Assert.Equal(1, initialItem.ProductId);
+        Assert.Equal(2, initialItem.Quantity);
+
+        // 確認資料庫已經產生 Primary Key。
+        Assert.True(initialItem.Id > 0);
+
+
+        // ========================================
+        // Act 2：再次加入相同商品
+        // ========================================
+
+        var mergedCart = await AddItemAsync(
+            client,
+            productId: 1,
+            quantity: 3
+        );
+
+        // HTTP Assertion。
+        Assert.Equal(5, mergedCart.TotalQuantity);
+        Assert.Equal(7500m, mergedCart.TotalAmount);
+
+
+        // ========================================
+        // Assert 2：確認 UPDATE 結果
+        // ========================================
+
+        // 使用新的 DI Scope 和 DbContext，
+        // 再次直接查詢資料庫。
+        var mergedItems =
+            await ReadCartItemsFromDatabaseAsync(factory);
+
+        // 資料庫仍然只能有一筆紀錄。
+        var mergedItem = Assert.Single(mergedItems);
+
+        // 確認更新的是原本那筆資料，
+        // 而不是刪除後重新新增。
+        Assert.Equal(initialItem.Id, mergedItem.Id);
+
+        Assert.Equal(cartKey, mergedItem.CartKey);
+        Assert.Equal(1, mergedItem.ProductId);
+
+        // 原本 2 個，再加入 3 個。
+        Assert.Equal(5, mergedItem.Quantity);
+
+        // 原本的建立時間不應被修改。
+        Assert.Equal(
+            initialItem.CreatedAt,
+            mergedItem.CreatedAt
+        );
+
+        // 修改時間不應早於原本的修改時間。
+        Assert.True(
+            mergedItem.UpdatedAt >= initialItem.UpdatedAt
+        );
+    }
+
+
+    // ==========================================
+    // Test 15：Update Quantity Persistence
+    // ==========================================
+
+    /// <summary>
+    /// 驗證 PUT Request 會更新既有 CartItem，
+    /// 而不是新增另一筆資料。
+    /// </summary>
+    [Fact]
+    public async Task CartPersistence_ShouldUpdateExistingRecord_WhenQuantityIsChanged()
+    {
+        // Arrange
+        using var factory =
+            new CustomWebApplicationFactory();
+
+        using var client = factory.CreateClient();
+
+        await SeedProductsAsync(factory);
+
+        // 建立初始購物車。
+        await AddItemAsync(
+            client,
+            productId: 1,
+            quantity: 2
+        );
+
+        // 讀取修改前的資料庫狀態。
+        var initialItems =
+            await ReadCartItemsFromDatabaseAsync(factory);
+
+        var initialItem = Assert.Single(initialItems);
+
+        Assert.Equal(2, initialItem.Quantity);
+
+
+        // ========================================
+        // Act：修改商品數量
+        // ========================================
+
+        using var response =
+            await client.PutAsJsonAsync(
+                "/api/cart/items/1",
+                new UpdateCartItemRequest
+                {
+                    Quantity = 4
+                }
+            );
+
+        var cart =
+            await ReadCartResponseAsync(response);
+
+
+        // ========================================
+        // Assert：HTTP Response
+        // ========================================
+
+        Assert.Equal(4, cart.TotalQuantity);
+        Assert.Equal(6000m, cart.TotalAmount);
+
+
+        // ========================================
+        // Assert：Database State
+        // ========================================
+
+        var updatedItems =
+            await ReadCartItemsFromDatabaseAsync(factory);
+
+        var updatedItem = Assert.Single(updatedItems);
+
+        // Primary Key 與 CartKey 都不應改變。
+        Assert.Equal(initialItem.Id, updatedItem.Id);
+        Assert.Equal(initialItem.CartKey, updatedItem.CartKey);
+        Assert.Equal(initialItem.ProductId, updatedItem.ProductId);
+
+        // PUT 是取代原本的 Quantity，
+        // 不是累加數量。
+        Assert.Equal(4, updatedItem.Quantity);
+
+        // 建立時間不應被修改。
+        Assert.Equal(
+            initialItem.CreatedAt,
+            updatedItem.CreatedAt
+        );
+
+        Assert.True(
+            updatedItem.UpdatedAt >= initialItem.UpdatedAt
+        );
+    }
+
+
+    // ==========================================
+    // Test 16：Delete and Clear Persistence
+    // ==========================================
+
+    /// <summary>
+    /// 驗證移除指定商品與清空購物車時，
+    /// CartItems 資料表中的紀錄確實被刪除，
+    /// 但不會影響 Products 資料表。
+    /// </summary>
+    [Fact]
+    public async Task CartPersistence_ShouldDeleteRecordsWithoutRemovingProducts()
+    {
+        // Arrange
+        using var factory =
+            new CustomWebApplicationFactory();
+
+        using var client = factory.CreateClient();
+
+        await SeedProductsAsync(factory);
+
+        await AddItemAsync(
+            client,
+            productId: 1,
+            quantity: 2
+        );
+
+        await AddItemAsync(
+            client,
+            productId: 2,
+            quantity: 3
+        );
+
+        // 確認刪除前資料庫確實存在兩筆紀錄。
+        var initialItems =
+            await ReadCartItemsFromDatabaseAsync(factory);
+
+        Assert.Equal(2, initialItems.Count);
+
+        // 記錄滑鼠對應的 CartItem。
+        // 稍後確認這筆資料沒有受到影響。
+        var initialMouse = Assert.Single(
+            initialItems,
+            item => item.ProductId == 2
+        );
+
+
+        // ========================================
+        // Act 1：移除指定商品
+        // ========================================
+
+        using var removeResponse =
+            await client.DeleteAsync(
+                "/api/cart/items/1"
+            );
+
+        var remainingCart =
+            await ReadCartResponseAsync(removeResponse);
+
+        Assert.Equal(3, remainingCart.TotalQuantity);
+        Assert.Equal(2400m, remainingCart.TotalAmount);
+
+
+        // ========================================
+        // Assert 1：Database State
+        // ========================================
+
+        var remainingItems =
+            await ReadCartItemsFromDatabaseAsync(factory);
+
+        // 資料庫只剩下一筆紀錄。
+        var remainingItem =
+            Assert.Single(remainingItems);
+
+        // 確認剩下的是滑鼠，
+        // 而且仍然是原本的那筆紀錄。
+        Assert.Equal(initialMouse.Id, remainingItem.Id);
+        Assert.Equal(initialMouse.CartKey, remainingItem.CartKey);
+        Assert.Equal(2, remainingItem.ProductId);
+        Assert.Equal(3, remainingItem.Quantity);
+
+
+        // ========================================
+        // Act 2：清空購物車
+        // ========================================
+
+        using var clearResponse =
+            await client.DeleteAsync("/api/cart");
+
+        var clearedCart =
+            await ReadCartResponseAsync(clearResponse);
+
+        AssertEmptyCart(clearedCart);
+
+
+        // ========================================
+        // Assert 2：CartItems Database State
+        // ========================================
+
+        var finalItems =
+            await ReadCartItemsFromDatabaseAsync(factory);
+
+        // 確認資料庫真的沒有購物車紀錄，
+        // 而不是只有 HTTP Response 回傳空陣列。
+        Assert.Empty(finalItems);
+
+
+        // ========================================
+        // Assert 3：Products Database State
+        // ========================================
+
+        // 建立新的 DI Scope。
+        using var scope =
+            factory.Services.CreateScope();
+
+        var db = scope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        // 確認購物車的刪除操作
+        // 不會連帶刪除原本的商品。
+        var productIds = await db.Products
+            .AsNoTracking()
+            .OrderBy(product => product.Id)
+            .Select(product => product.Id)
+            .ToListAsync();
+
+        Assert.Equal(
+            new[] { 1, 2 },
+            productIds
+        );
+    }
+
+
+    // ==========================================
+    // Test 17：Rejected Operation Persistence
+    // ==========================================
+
+    /// <summary>
+    /// 驗證超過庫存限制的 POST 和 PUT Request，
+    /// 不會修改原本的購物車資料。
+    /// </summary>
+    [Fact]
+    public async Task CartPersistence_ShouldPreserveRecord_WhenStockValidationFails()
+    {
+        // Arrange
+        using var factory =
+            new CustomWebApplicationFactory();
+
+        using var client = factory.CreateClient();
+
+        await SeedProductsAsync(factory);
+
+        // 商品庫存為 10。
+        // 先成功加入 8 個商品。
+        await AddItemAsync(
+            client,
+            productId: 1,
+            quantity: 8
+        );
+
+        // 保存操作失敗前的資料庫狀態。
+        var initialItems =
+            await ReadCartItemsFromDatabaseAsync(factory);
+
+        var initialItem = Assert.Single(initialItems);
+
+        Assert.Equal(8, initialItem.Quantity);
+
+
+        // ========================================
+        // Act 1：POST 合併後超過庫存
+        // ========================================
+
+        // 原本 8 個，再加入 3 個。
+        // 合併後 11 個，超過庫存 10。
+        using var postResponse =
+            await client.PostAsJsonAsync(
+                "/api/cart/items",
+                new AddCartItemRequest
+                {
+                    ProductId = 1,
+                    Quantity = 3
+                }
+            );
+
+        Assert.Equal(
+            HttpStatusCode.BadRequest,
+            postResponse.StatusCode
+        );
+
+
+        // ========================================
+        // Assert 1：POST 失敗後的資料庫狀態
+        // ========================================
+
+        var itemsAfterPost =
+            await ReadCartItemsFromDatabaseAsync(factory);
+
+        var itemAfterPost =
+            Assert.Single(itemsAfterPost);
+
+        // 原本的紀錄不應發生任何變化。
+        Assert.Equal(initialItem.Id, itemAfterPost.Id);
+        Assert.Equal(initialItem.CartKey, itemAfterPost.CartKey);
+        Assert.Equal(initialItem.ProductId, itemAfterPost.ProductId);
+        Assert.Equal(8, itemAfterPost.Quantity);
+
+        Assert.Equal(
+            initialItem.CreatedAt,
+            itemAfterPost.CreatedAt
+        );
+
+        // 操作失敗，修改時間也不應被更新。
+        Assert.Equal(
+            initialItem.UpdatedAt,
+            itemAfterPost.UpdatedAt
+        );
+
+
+        // ========================================
+        // Act 2：PUT 超過庫存
+        // ========================================
+
+        // 嘗試直接將 Quantity 設定為 11。
+        using var putResponse =
+            await client.PutAsJsonAsync(
+                "/api/cart/items/1",
+                new UpdateCartItemRequest
+                {
+                    Quantity = 11
+                }
+            );
+
+        Assert.Equal(
+            HttpStatusCode.BadRequest,
+            putResponse.StatusCode
+        );
+
+
+        // ========================================
+        // Assert 2：PUT 失敗後的資料庫狀態
+        // ========================================
+
+        var itemsAfterPut =
+            await ReadCartItemsFromDatabaseAsync(factory);
+
+        var itemAfterPut =
+            Assert.Single(itemsAfterPut);
+
+        Assert.Equal(initialItem.Id, itemAfterPut.Id);
+        Assert.Equal(initialItem.CartKey, itemAfterPut.CartKey);
+        Assert.Equal(initialItem.ProductId, itemAfterPut.ProductId);
+
+        // 兩次操作都失敗，
+        // 資料庫中的 Quantity 必須仍然是 8。
+        Assert.Equal(8, itemAfterPut.Quantity);
+
+        Assert.Equal(
+            initialItem.CreatedAt,
+            itemAfterPut.CreatedAt
+        );
+
+        Assert.Equal(
+            initialItem.UpdatedAt,
+            itemAfterPut.UpdatedAt
+        );
+
+
+        // ========================================
+        // Assert 3：HTTP 與 Database 結果一致
+        // ========================================
+
+        var finalCart =
+            await GetCartAsync(client);
+
+        Assert.Equal(8, finalCart.TotalQuantity);
+        Assert.Equal(12000m, finalCart.TotalAmount);
     }
 }
