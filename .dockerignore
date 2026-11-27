@@ -4,58 +4,153 @@
 
 .git
 .gitignore
+.gitattributes
+.github
 
 
 # ==========================================
-# IDE
+# IDE / editor
 # ==========================================
 
-.vs
-.vscode
-.idea
+**/.vs
+**/.vscode
+**/.idea
+
+**/*.user
+**/*.rsuser
+**/*.suo
+**/*.userosscache
+**/*.sln.docstates
+**/*.sln.iml
 
 
 # ==========================================
-# .NET build output
+# .NET build / publish output
 # ==========================================
 
 **/bin
 **/obj
+**/artifacts
+**/publish
+
+
+# ==========================================
+# NuGet
+# ==========================================
+
+**/packages
+**/*.nupkg
+**/*.snupkg
+
+
+# ==========================================
+# Test project
+# ==========================================
+
+# 正式網站 Docker Image 不需要測試原始碼。
+RazorCommerceLab.Tests/
+
+
+# ==========================================
+# Test results
+# ==========================================
+
+**/TestResults
+**/*.trx
+
+result.txt
+result(*).txt
+error.txt
+test-result*.txt
+
+
+# ==========================================
+# Code Coverage / Coverlet / ReportGenerator
+# ==========================================
+
+**/coverage
+**/coverage-report
+**/CoverageReport
+
+**/coverage.json
+**/coverage.xml
+**/coverage.*.xml
+**/coverage.info
+
+**/*.coverage
+**/*.coveragexml
+
+
+# ==========================================
+# Local environment / secrets
+# ==========================================
+
+**/.env
+**/.env.*
+
+**/appsettings.Local.json
+**/appsettings.*.local.json
+**/secrets.json
 
 
 # ==========================================
 # Local SQLite database
 # ==========================================
 
-# 本機開發用 SQLite DB
-# 不要 bake 進 Docker image。
-#
-# Docker 會自己使用：
-#
-# /app/Data/razor-commerce.db
-#
-# 並由 named volume 保存。
-RazorCommerceLab/Data/*.db
-RazorCommerceLab/Data/*.db-shm
-RazorCommerceLab/Data/*.db-wal
-RazorCommerceLab/Data/*.sqlite
-RazorCommerceLab/Data/*.sqlite3
+# 不將本機資料庫複製進 Docker Image。
+# Container 使用 /app/Data/razor-commerce.db，
+# 並透過 Docker named volume 保存資料。
+
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/*.db-journal
+
+**/*.sqlite
+**/*.sqlite-shm
+**/*.sqlite-wal
+**/*.sqlite-journal
+
+**/*.sqlite3
+**/*.sqlite3-shm
+**/*.sqlite3-wal
+**/*.sqlite3-journal
 
 
 # ==========================================
-# Local / temporary files
+# Logs / temporary files
 # ==========================================
 
-*.log
-*.tmp
-.DS_Store
-Thumbs.db
+**/logs
+**/*.log
+**/*.tmp
+
+
+# ==========================================
+# Docker local override
+# ==========================================
+
+docker-compose.override.yml
+docker-compose.override.yaml
+compose.override.yml
+compose.override.yaml
 
 
 # ==========================================
 # Documentation
 # ==========================================
 
-# Docker image 執行網站不需要 README / NOTES。
-README.md
-NOTES.md
+docs/
+**/README.md
+**/NOTES.md
+**/Goal.md
+**/Step-*.md
+
+
+# ==========================================
+# Operating system files
+# ==========================================
+
+**/.DS_Store
+**/Thumbs.db
+**/desktop.ini

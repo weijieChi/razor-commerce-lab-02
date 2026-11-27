@@ -1,12 +1,17 @@
-# ==============================
-# .NET build output
-# ==============================
+# ==========================================
+# .NET build / publish output
+# ==========================================
+
 bin/
 obj/
+artifacts/
+publish/
 
-# ==============================
+
+# ==========================================
 # Visual Studio
-# ==============================
+# ==========================================
+
 .vs/
 *.user
 *.rsuser
@@ -14,75 +19,126 @@ obj/
 *.userosscache
 *.sln.docstates
 
-# ==============================
+
+# ==========================================
 # Visual Studio Code
-# ==============================
+# ==========================================
+
 .vscode/*
 
-# 如果未來想提交共用的 VS Code 設定，
-# 這幾個檔案仍然允許加入 Git。
+# 允許提交團隊共用的開發環境設定。
 !.vscode/settings.json
 !.vscode/launch.json
 !.vscode/tasks.json
 !.vscode/extensions.json
 
-# ==============================
+
+# ==========================================
 # JetBrains Rider
-# ==============================
+# ==========================================
+
 .idea/
 *.sln.iml
 
-# ==============================
+
+# ==========================================
 # NuGet
-# ==============================
+# ==========================================
+
 *.nupkg
 *.snupkg
 packages/
 
-# ==============================
-# Test results
-# ==============================
+
+# ==========================================
+# xUnit / test results
+# ==========================================
+
 TestResults/
 *.trx
+
+# 手動保存的測試執行紀錄。
+/result.txt
+/result(*).txt
+/error.txt
+/test-result*.txt
+
+
+# ==========================================
+# Code Coverage / Coverlet / ReportGenerator
+# ==========================================
+
 coverage/
+coverage-report/
+CoverageReport/
+
+coverage.json
 coverage.xml
-coverage.cobertura.xml
+coverage.*.xml
+coverage.info
 
-# ==============================
-# Logs
-# ==============================
-*.log
+*.coverage
+*.coveragexml
+
+
+# ==========================================
+# Logs / temporary files
+# ==========================================
+
 logs/
-result.txt
+*.log
+*.tmp
 
-# ==============================
+
+# ==========================================
 # Local environment / secrets
-# ==============================
+# ==========================================
+
 .env
 .env.*
+
+# 保留環境變數設定範本。
 !.env.example
 
 appsettings.Local.json
 appsettings.*.local.json
 secrets.json
 
-# ==============================
+
+# ==========================================
 # SQLite database
-# ==============================
+# ==========================================
+
 *.db
 *.db-shm
 *.db-wal
+*.db-journal
+
 *.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite-journal
+
 *.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
+*.sqlite3-journal
 
-# ==============================
+
+# ==========================================
 # Docker local override
-# ==============================
-docker-compose.override.yml
+# ==========================================
 
-# ==============================
-# OS files
-# ==============================
+docker-compose.override.yml
+docker-compose.override.yaml
+compose.override.yml
+compose.override.yaml
+
+
+# ==========================================
+# Operating system files
+# ==========================================
+
 .DS_Store
 Thumbs.db
 desktop.ini
